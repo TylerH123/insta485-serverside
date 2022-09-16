@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./bin/insta485db create
