@@ -44,7 +44,7 @@ CREATE TABLE comments(
     ON DELETE CASCADE
 );
 
-CREATE TABle likes(
+CREATE TABlE likes(
   likeid INTEGER AUTO_INCREMENT,
   owner VARCHAR(20),
   postid INTEGER,

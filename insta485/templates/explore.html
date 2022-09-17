@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block body %}
+<div id="site_body">
+  <div id="feed">
+    <h4>Discover People</h4>
+    <div class="follower_list">
+
+      {% for user in context['not_following'] %}
+      <div class="follower_item">
+        <a href="/users/{{ user['username'] }}/">
+          <div class="follower_item_left">
+            <img 
+              class="pfp"
+              src="{{ user['user_img_url'] }}" 
+              alt="{{ user['user_img_url'] }}"
+            />
+            <b>{{ user['username'] }}</b>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

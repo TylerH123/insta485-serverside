@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block body %}
+<div id="site_body">
+  <div id="feed">
+    <h4>Followers</h4>
+    <div class="follower_list">
+      {% for follower in context['followers'] %}
+      <div class="follower_item">
+        <a href="/users/{{ follower['username'] }}/">
+          <div class="follower_item_left">
+            <img 
+              class="pfp"
+              src="{{ follower['user_img_url'] }}" 
+              alt="{{ follower['user_img_url'] }}"
+            />
+            <b>{{ follower['username'] }}</b>
+          </div>
+        </a>
+        <div class="follower_item_right">
+          {% if context['logname'] != follower['username'] %}
+            <p class="following_status">
+              {% if follower['logname_follows_username']%}
+                following
+              {% else %}
+                not following
+              {% endif %}
+            </p>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

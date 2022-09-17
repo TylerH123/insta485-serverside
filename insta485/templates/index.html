@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block body %}
+<div id="site_body">
+  <div id="feed">
+    {% for post in context['posts'] %}
+    <div class="post">
+      <div class="post_header">
+        <a href="/users/{{ post['owner'] }}/">
+          <div class="post_header_left">
+            <img
+              class="pfp"
+              alt="{{ post['owner'] }}"
+              src="{{ post['owner_img_url']}}"
+            />
+            <div class="username">{{ post['owner'] }}</div>
+          </div>
+        </a>
+        <a href="/posts/{{ post['postid'] }}/">
+          <div class="timestamp">{{ post['timestamp'] }}</div>
+        </a>
+      </div>
+      <img
+        alt="{{ post['img_url'] }}"
+        class="photo"
+        src="{{ post['img_url'] }}"
+      />
+      <div class="post_stats">
+        {{ post['likes'] }} 
+        {% if post['likes'] == 1 %}
+          like
+        {% else %}
+          likes
+        {% endif %}
+      </div>
+      <div class="comment_section">
+        {% for comment in post['comments'] %}
+        <div class="comment">
+          <a href="/users/{{ comment['owner'] }}/">
+            <div class="username">{{ comment['owner'] }}</div>
+          </a>
+          <p>{{ comment['text'] }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

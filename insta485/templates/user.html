@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block body %}
+<div id="site_body">
+  <div id="feed">
+    <div id="user_info">
+      <h2>{{ context['username'] }}</h2>
+      {% if context['logname'] != context['username'] %}
+        <p class="following_status">
+          {% if context['logname_follows_username']%}
+            following
+          {% else %}
+            not following
+          {% endif %}
+        </p>
+      {% endif %}
+      <div id="user_stats">
+        <p>
+          {{ context['total_posts']}} 
+          {% if context['total_posts'] == 1 %}
+            post
+          {% else %}
+            posts
+          {% endif %}
+        </p>
+        <a href="/users/{{ context['username'] }}/followers/">
+          {{ context['followers']}}
+          {% if context['posts'] == 1 %}
+            follower
+          {% else %}
+            followers
+          {% endif %}
+        </a>
+        <a href="/users/{{ context['username'] }}/following/">{{ context['following']}} following</a>
+      </div>
+      <div>{{ context['fullname'] }}</div>
+    </div>
+
+    <div id="user_posts">
+      {% for row in context['posts']|batch(3)%}
+      <div class="row">
+        {% for col in row %}
+          <div class="col-md user_post">
+            <a href="/posts/{{ col['postid'] }}/">
+              <img
+                class="photo"
+                alt="{{ col['img_url'] }}"
+                src="{{ col['img_url'] }}"
+              />
+            </a>
+          </div>
+        {% endfor %}
+        {% for space in range(3 - context['posts']|length) %}
+          <div class="col-md user_post">
+          </div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

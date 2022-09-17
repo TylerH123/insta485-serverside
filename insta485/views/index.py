@@ -9,4 +9,4 @@ import insta485
 def show_index():
     """Display / route."""
     context = {}
-    return flask.render_template("index.html", **context)
+    return flask.render_template("index.html", context=context, **context)
