@@ -1,5 +1,4 @@
 #!/bin/bash
-
 echo 'test -e var/insta485.sqlite3'
 if test -e var/insta485.sqlite3
 then

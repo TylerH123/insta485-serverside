@@ -10,19 +10,19 @@
             <img
               class="pfp"
               alt="{{ post['owner'] }}"
-              src="{{ post['owner_img_url']}}"
+              src="{{ post['user_filename']}}"
             />
             <div class="username">{{ post['owner'] }}</div>
           </div>
         </a>
         <a href="/posts/{{ post['postid'] }}/">
-          <div class="timestamp">{{ post['timestamp'] }}</div>
+          <div class="timestamp">{{ post['created'] }}</div>
         </a>
       </div>
       <img
-        alt="{{ post['img_url'] }}"
+        alt="{{ post['filename'] }}"
         class="photo"
-        src="{{ post['img_url'] }}"
+        src="{{ post['filename'] }}"
       />
       <div class="post_stats">
         {{ post['likes'] }} 

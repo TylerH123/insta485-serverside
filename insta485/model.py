@@ -2,12 +2,14 @@
 import sqlite3
 import flask
 import insta485
+
 def dict_factory(cursor, row):
     """Convert database row objects to a dictionary keyed on column name.
     This is useful for building dictionaries which are then used to render a
     template.  Note that this would be inefficient for large queries.
     """
     return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
+
 def get_db():
     """Open a new database connection.
     Flask docs:
@@ -21,6 +23,7 @@ def get_db():
         # backwards compatibility thing.
         flask.g.sqlite_db.execute("PRAGMA foreign_keys = ON")
     return flask.g.sqlite_db
+
 @insta485.app.teardown_appcontext
 def close_db(error):
     """Close the database at the end of a request.
@@ -32,3 +35,53 @@ def close_db(error):
     if sqlite_db is not None:
         sqlite_db.commit()
         sqlite_db.close()
+
+def getPostData(postid):
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        "SELECT * "
+        "FROM posts "
+        "WHERE postid = ?",
+        (postid, )
+    )
+    post = cur.fetchone()
+    post["filename"] = "/uploads/" + post["filename"]
+
+    post["user_filename"] = getUserPhoto(post["owner"])
+    post["comments"] = getPostComments(postid)
+    post["likes"] = getPostLikeCount(postid)
+
+    return post
+
+def getUserPhoto(username):
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        "SELECT filename "
+        "FROM users "
+        "WHERE username = ?",
+        (username, )
+    )
+    filename = "/uploads/" + cur.fetchone()["filename"]
+    return filename
+
+def getPostComments(postid):
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        "SELECT owner, text "
+        "FROM comments "
+        "WHERE postid = ?",
+        (postid, )
+    )
+    comments = cur.fetchall()
+    return comments
+
+def getPostLikeCount(postid):
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        "SELECT likeid "
+        "FROM likes "
+        "WHERE postid = ?",
+        (postid, )
+    )
+    likes = cur.fetchall()
+    return len(likes)
