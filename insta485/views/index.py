@@ -6,11 +6,11 @@ URLs include:
 """
 import flask
 import insta485
-from insta485.model import *
+from insta485 import model
 
 
 @insta485.app.route("/uploads/<path:name>/")
-def retrieveImage(name):
+def retrieve_image(name):
     """Send image link."""
     return flask.send_from_directory(
         insta485.app.config['UPLOAD_FOLDER'], name, as_attachment=True
@@ -35,8 +35,8 @@ def show_index():
     # Get all relevant data for each post
     for item in post_id_list:
         postid = item['postid']
-        postData = getPostData(postid)
-        context["posts"].append(postData)
+        post_data = model.get_post_data(postid)
+        context["posts"].append(post_data)
     return flask.render_template("index.html", **context)
 
 
@@ -48,17 +48,17 @@ def show_user(username):
         "username": username,
     }
 
-    userData = getUserData(username)
-    context['fullname'] = userData['fullname']
+    user_data = model.get_user_data(username)
+    context['fullname'] = user_data['fullname']
 
-    followers = getUserFollowers(username)
+    followers = model.get_user_followers(username)
     context['logname_follows_username'] = context['logname'] in followers
 
-    posts = getUserPosts(username)
+    posts = model.get_user_posts(username)
     context['posts'] = posts
     context['total_posts'] = len(posts)
-    context['followers'] = len(getUserFollowers(username))
-    context['following'] = len(getUserFollowing(username))
+    context['followers'] = len(followers)
+    context['following'] = len(model.get_user_following(username))
 
     return flask.render_template("user.html", **context)
 
@@ -66,7 +66,7 @@ def show_user(username):
 @insta485.app.route('/posts/<path:postid>/')
 def show_posts(postid):
     """Display /posts/<postid>/ route."""
-    post = getPostData(postid)
+    post = model.get_post_data(postid)
     context = {
         "logname": "awdeorio",
         "postid": postid
@@ -86,8 +86,8 @@ def show_followers(username):
         "followers": []
     }
 
-    logname_following_list = getUserFollowing(context["logname"])
-    followers_list = getUserFollowers(username)
+    logname_following_list = model.get_user_following(context["logname"])
+    followers_list = model.get_user_followers(username)
 
     # Get all users following username
     for follower in followers_list:
@@ -95,7 +95,7 @@ def show_followers(username):
             "username": follower,
             "logname_follows_username": follower in logname_following_list
         }
-        user["user_img_url"] = getUserPhoto(follower)
+        user["user_img_url"] = model.get_user_photo(follower)
         context["followers"].append(user)
 
     return flask.render_template("followers.html", **context)
@@ -109,8 +109,8 @@ def show_following(username):
         "following": []
     }
 
-    logname_following_list = getUserFollowing(context["logname"])
-    following_list = getUserFollowing(username)
+    logname_following_list = model.get_user_following(context["logname"])
+    following_list = model.get_user_following(username)
 
     # Get all users that username follows
     for following in following_list:
@@ -119,7 +119,7 @@ def show_following(username):
             "user_img_url": "",
             "logname_follows_username": following in logname_following_list
         }
-        user["user_img_url"] = getUserPhoto(following)
+        user["user_img_url"] = model.get_user_photo(following)
         context["following"].append(user)
 
     return flask.render_template("following.html", **context)
@@ -133,7 +133,7 @@ def show_explore():
         "not_following": []
     }
 
-    not_following_list = getUserNotFollowing(context["logname"])
+    not_following_list = model.get_user_not_following(context["logname"])
 
     # Get all users that username follows
     for notfollowing in not_following_list:
@@ -141,7 +141,7 @@ def show_explore():
             "username": notfollowing,
             "user_img_url": "",
         }
-        user["user_img_url"] = getUserPhoto(notfollowing)
+        user["user_img_url"] = model.get_user_photo(notfollowing)
         context["not_following"].append(user)
 
     return flask.render_template("explore.html", **context)

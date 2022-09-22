@@ -1,8 +1,8 @@
 """Insta485 model (database) API."""
 import sqlite3
 import flask
-import insta485
 import arrow
+import insta485
 
 
 def dict_factory(cursor, row):
@@ -40,7 +40,7 @@ def close_db(error):
         sqlite_db.close()
 
 
-def getUserData(username):
+def get_user_data(username):
     """Get user data from table."""
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -49,11 +49,11 @@ def getUserData(username):
         "WHERE username = ?",
         (username, )
     )
-    userData = cur.fetchone()
-    return userData
+    user_data = cur.fetchone()
+    return user_data
 
 
-def getUserPhoto(username):
+def get_user_photo(username):
     """Get user photo link from table."""
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -66,7 +66,7 @@ def getUserPhoto(username):
     return filename
 
 
-def getUserPosts(username):
+def get_user_posts(username):
     """Get user's post from table."""
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -75,14 +75,14 @@ def getUserPosts(username):
         "WHERE owner = ?",
         (username, )
     )
-    postsData = cur.fetchall()
+    posts_data = cur.fetchall()
     posts = []
-    for p in postsData:
-        posts.append(getPostData(p["postid"]))
+    for entry in posts_data:
+        posts.append(get_post_data(entry["postid"]))
     return posts
 
 
-def getPostData(postid):
+def get_post_data(postid):
     """Get post data from table."""
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -94,14 +94,14 @@ def getPostData(postid):
 
     post = cur.fetchone()
     post["filename"] = "/uploads/" + post["filename"] + "/"
-    post["user_filename"] = getUserPhoto(post["owner"])
-    post["comments"] = getPostComments(postid)
-    post["likes"] = getPostLikeCount(postid)
+    post["user_filename"] = get_user_photo(post["owner"])
+    post["comments"] = get_post_comments(postid)
+    post["likes"] = get_post_like_count(postid)
     post["created"] = arrow.get(post['created']).humanize()
     return post
 
 
-def getPostComments(postid):
+def get_post_comments(postid):
     """Get comments for post."""
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -114,7 +114,7 @@ def getPostComments(postid):
     return comments
 
 
-def getPostLikeCount(postid):
+def get_post_like_count(postid):
     """Get likes for post."""
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -127,7 +127,7 @@ def getPostLikeCount(postid):
     return len(likes)
 
 
-def getUserFollowers(username):
+def get_user_followers(username):
     """Get all the followers for a user."""
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -136,16 +136,16 @@ def getUserFollowers(username):
         "WHERE username2 = ?",
         (username, )
     )
-    followersData = cur.fetchall()
+    followers_data = cur.fetchall()
 
     followers = []
-    for item in followersData:
+    for item in followers_data:
         followers.append(item['username1'])
 
     return followers
 
 
-def getUserFollowing(username):
+def get_user_following(username):
     """Get all the people that the user is following."""
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -154,16 +154,14 @@ def getUserFollowing(username):
         "WHERE username1 = ?",
         (username, )
     )
-    followingData = cur.fetchall()
-
+    following_data = cur.fetchall()
     following = []
-    for item in followingData:
+    for item in following_data:
         following.append(item['username2'])
-
     return following
 
 
-def getUserNotFollowing(username):
+def get_user_not_following(username):
     """Get all the users that the user is not following."""
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -175,11 +173,9 @@ def getUserNotFollowing(username):
         "WHERE username1 = ?",
         (username, )
     )
-    notFollowingData = cur.fetchall()
-    notFollowing = []
-
-    for item in notFollowingData:
-        notFollowing.append(item['username'])
-    notFollowing.remove(username)
-
-    return notFollowing
+    not_following_data = cur.fetchall()
+    not_following = []
+    for item in not_following_data:
+        not_following.append(item['username'])
+    not_following.remove(username)
+    return not_following
