@@ -76,33 +76,28 @@ def show_posts(postid):
     for entry in post: 
         context[entry] = post[entry]
 
-    
-
-    print(context)
-
     return flask.render_template("post.html", **context)
 
 @insta485.app.route('/users/<path:username>/followers/')
 def show_followers(username):
-    """Display /users/<userid>/follower route"""
+    """Display /users/<username>/follower route"""
 
     context = { 
         "logname": "awdeorio",
         "followers": []
     }
 
-
     followers_list = getUserFollowers(username)
+    following_list = getUserFollowing(username)
 
     # Get all users following username
     for follower in followers_list:
         user = {
             "username": follower,
             "user_img_url": "",
-            "logname_follows_username": True
+            "logname_follows_username": follower in following_list
         }
         user["user_img_url"] = getUserPhoto(follower)
-        user["logname_follows_username"] = context["logname"] in followers_list
         context["followers"].append(user)
 
     return flask.render_template("followers.html", **context)
@@ -126,13 +121,12 @@ def show_following(username):
             "logname_follows_username": True
         }
         user["user_img_url"] = getUserPhoto(following)
-        user["logname_follows_username"] = context["logname"] in following_list
         context["following"].append(user)
 
     return flask.render_template("following.html", **context)
 
 @insta485.app.route('/explore/')
-def show_explore(username):
+def show_explore():
     """Display /explore/ route"""
 
     context = { 
@@ -140,11 +134,10 @@ def show_explore(username):
         "not_following": []
     }
 
-    not_following_list = getUserFollowing(username)
+    not_following_list = getUserNotFollowing(context["logname"])
 
     # Get all users that username follows
     for notfollowing in not_following_list:
-        print(notfollowing)
         user = {
             "username": notfollowing,
             "user_img_url": "",

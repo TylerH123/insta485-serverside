@@ -41,7 +41,7 @@
         {% for col in row %}
         <div class="col-md user_post">
           <a href="/posts/{{ col['postid'] }}/">
-            <img class="photo" alt="{{ col['img_url'] }}" src="{{ col['img_url'] }}" />
+            <img class="photo" alt="{{ col['img_url'] }}" src="{{ col['filename'] }}" />
           </a>
         </div>
         {% endfor %}

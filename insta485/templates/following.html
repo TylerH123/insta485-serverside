@@ -4,7 +4,7 @@
   <div id="feed">
     <h4>Following</h4>
     <div class="follower_list">
-      {% for following in context['following'] %}
+      {% for following in following %}
       <div class="follower_item">
         <a href="/users/{{ following['username'] }}/">
           <div class="follower_item_left">
@@ -17,7 +17,7 @@
           </div>
         </a>
         <div class="follower_item_right">
-          {% if context['logname'] != following['username'] %}
+          {% if logname != following['username'] %}
             <p class="following_status">
               {% if following['logname_follows_username']%}
                 following

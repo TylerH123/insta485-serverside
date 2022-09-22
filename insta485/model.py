@@ -151,7 +151,7 @@ def getUserNotFollowing(username):
     cur = connection.execute(
         "SELECT username "
         "FROM users "
-        "MINUS"
+        "EXCEPT "
         "SELECT username2 "
         "FROM following "
         "WHERE username1 = ?",
@@ -160,6 +160,9 @@ def getUserNotFollowing(username):
     )
     notFollowingData = cur.fetchall()
     notFollowing = []
+
     for item in notFollowingData:
         notFollowing.append(item['username'])
+    notFollowing.remove(username)
+
     return notFollowing

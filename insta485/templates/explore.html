@@ -5,7 +5,7 @@
     <h4>Discover People</h4>
     <div class="follower_list">
 
-      {% for user in context['not_following'] %}
+      {% for user in not_following %}
       <div class="follower_item">
         <a href="/users/{{ user['username'] }}/">
           <div class="follower_item_left">
