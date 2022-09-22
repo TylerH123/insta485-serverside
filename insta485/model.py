@@ -7,6 +7,7 @@ import arrow
 
 def dict_factory(cursor, row):
     """Convert database row objects to a dictionary keyed on column name.
+
     This is useful for building dictionaries which are then used to render a
     template.  Note that this would be inefficient for large queries.
     """
@@ -14,10 +15,7 @@ def dict_factory(cursor, row):
 
 
 def get_db():
-    """Open a new database connection.
-    Flask docs:
-    https://flask.palletsprojects.com/en/1.0.x/appcontext/#storing-data
-    """
+    """Open a new database connection."""
     if 'sqlite_db' not in flask.g:
         db_filename = insta485.app.config['DATABASE_FILENAME']
         flask.g.sqlite_db = sqlite3.connect(str(db_filename))
@@ -31,6 +29,7 @@ def get_db():
 @insta485.app.teardown_appcontext
 def close_db(error):
     """Close the database at the end of a request.
+
     Flask docs:
     https://flask.palletsprojects.com/en/1.0.x/appcontext/#storing-data
     """
@@ -42,6 +41,7 @@ def close_db(error):
 
 
 def getUserData(username):
+    """Get user data from table."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         "SELECT * "
@@ -54,6 +54,7 @@ def getUserData(username):
 
 
 def getUserPhoto(username):
+    """Get user photo link from table."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         "SELECT filename "
@@ -66,6 +67,7 @@ def getUserPhoto(username):
 
 
 def getUserPosts(username):
+    """Get user's post from table."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         "SELECT postid "
@@ -81,6 +83,7 @@ def getUserPosts(username):
 
 
 def getPostData(postid):
+    """Get post data from table."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         "SELECT * "
@@ -99,6 +102,7 @@ def getPostData(postid):
 
 
 def getPostComments(postid):
+    """Get comments for post."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         "SELECT owner, text "
@@ -111,6 +115,7 @@ def getPostComments(postid):
 
 
 def getPostLikeCount(postid):
+    """Get likes for post."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         "SELECT likeid "
@@ -123,6 +128,7 @@ def getPostLikeCount(postid):
 
 
 def getUserFollowers(username):
+    """Get all the followers for a user."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         "SELECT username1 "
@@ -140,6 +146,7 @@ def getUserFollowers(username):
 
 
 def getUserFollowing(username):
+    """Get all the people that the user is following."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         "SELECT username2 "
@@ -157,6 +164,7 @@ def getUserFollowing(username):
 
 
 def getUserNotFollowing(username):
+    """Get all the users that the user is not following."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         "SELECT username "
