@@ -3,15 +3,30 @@
 <div id="site_body">
   <div id="feed">
     <div id="user_info">
-      <h2>{{ username }}</h2>
+      <div id="user_head">
+        <h2>{{ username }}</h2>
+        {% if logname == username %}
+          <a href="/accounts/edit/">
+            <button class="btn btn-sm btn-primary">Edit Profile</button>
+          </a>
+          <form action="<FIXME_LOGOUT_PAGE_URL_HERE>" method="post" enctype="multipart/form-data">
+            <input class="btn btn-sm btn-secondary" type="submit" name="logout" value="Logout"/>
+          </form>
+        {% endif %}
+      </div>
       {% if logname != username %}
-      <p class="following_status">
-        {% if 'logname_follows_username' %}
-        following
+      <b id="following_status">
+        {% if logname_follows_username %}
+        following      
+        <form class="follow-button" action="<FIXME_FOLLOWING_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>" method="post" enctype="multipart/form-data">
+          <input class="btn btn-sm btn-secondary" type="submit" name="unfollow" value="unfollow"/>
+          <input type="hidden" name="username" value="<FIXME_USERNAME_HERE>"/>
+          <input type="hidden" name="operation" value="unfollow"/>
+        </form>
         {% else %}
         not following
         {% endif %}
-      </p>
+      </b>
       {% endif %}
       <div id="user_stats">
         <p>
@@ -33,6 +48,13 @@
         <a href="/users/{{ username }}/following/">{{ following }} following</a>
       </div>
       <div>{{ fullname }}</div>
+      <div id="upload_photo">
+        <form action="<FIXME_POSTS_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>" method="post" enctype="multipart/form-data">
+          <input type="file" name="file" accept="image/*" required/>
+          <input type="submit" name="create_post" value="upload new post"/>
+          <input type="hidden" name="operation" value="create"/>
+        </form>
+      </div>
     </div>
 
     <div id="user_posts">

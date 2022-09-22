@@ -4,7 +4,6 @@
   <div id="feed">
     <h4>Discover People</h4>
     <div class="follower_list">
-
       {% for user in not_following %}
       <div class="follower_item">
         <a href="/users/{{ user['username'] }}/">
@@ -17,6 +16,13 @@
             <b>{{ user['username'] }}</b>
           </div>
         </a>
+        <div class="follower_item_right">
+          <form class="follow-button" action="<FIXME_FOLLOWING_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>" method="post" enctype="multipart/form-data">
+            <input class="btn btn-sm btn-secondary" type="submit" name="follow" value="follow"/>
+            <input type="hidden" name="username" value="<FIXME_USERNAME_HERE>"/>
+            <input type="hidden" name="operation" value="follow"/>
+          </form>
+        </div>
       </div>
       {% endfor %}
     </div>
