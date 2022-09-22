@@ -48,11 +48,11 @@ def show_user(username):
         "username": username,
     }
 
+    userData = getUserData(username)
+    context['fullname'] = userData['fullname']
+
     followers = getUserFollowers(username)
-    if username in followers:
-        context['logname_follows_username'] = True
-    else:
-        context['logname_follows_username'] = False
+    context['logname_follows_username'] = context['logname'] in followers
 
     posts = getUserPosts(username)
     context['posts'] = posts
@@ -86,15 +86,14 @@ def show_followers(username):
         "followers": []
     }
 
+    logname_following_list = getUserFollowing(context["logname"])
     followers_list = getUserFollowers(username)
-    following_list = getUserFollowing(username)
 
     # Get all users following username
     for follower in followers_list:
         user = {
             "username": follower,
-            "user_img_url": "",
-            "logname_follows_username": follower in following_list
+            "logname_follows_username": follower in logname_following_list
         }
         user["user_img_url"] = getUserPhoto(follower)
         context["followers"].append(user)
@@ -110,6 +109,7 @@ def show_following(username):
         "following": []
     }
 
+    logname_following_list = getUserFollowing(context["logname"])
     following_list = getUserFollowing(username)
 
     # Get all users that username follows
@@ -117,7 +117,7 @@ def show_following(username):
         user = {
             "username": following,
             "user_img_url": "",
-            "logname_follows_username": True
+            "logname_follows_username": following in logname_following_list
         }
         user["user_img_url"] = getUserPhoto(following)
         context["following"].append(user)

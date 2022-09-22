@@ -21,8 +21,18 @@
             <p class="following_status">
               {% if follower['logname_follows_username']%}
                 following
+                <form class="follow-button" action="<FIXME_FOLLOWING_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>" method="post" enctype="multipart/form-data">
+                  <input class="btn btn-sm btn-secondary" type="submit" name="unfollow" value="unfollow"/>
+                  <input type="hidden" name="username" value="<FIXME_USERNAME_HERE>"/>
+                  <input type="hidden" name="operation" value="unfollow"/>
+                </form>
               {% else %}
                 not following
+                <form class="follow-button" action="<FIXME_FOLLOWING_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>" method="post" enctype="multipart/form-data">
+                  <input class="btn btn-sm btn-secondary" type="submit" name="follow" value="follow"/>
+                  <input type="hidden" name="username" value="<FIXME_USERNAME_HERE>"/>
+                  <input type="hidden" name="operation" value="follow"/>
+                </form>
               {% endif %}
             </p>
           {% endif %}

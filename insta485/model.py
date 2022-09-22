@@ -41,6 +41,18 @@ def close_db(error):
         sqlite_db.close()
 
 
+def getUserData(username):
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        "SELECT * "
+        "FROM users "
+        "WHERE username = ?",
+        (username, )
+    )
+    userData = cur.fetchone()
+    return userData
+
+
 def getUserPhoto(username):
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -108,17 +120,6 @@ def getPostLikeCount(postid):
     )
     likes = cur.fetchall()
     return len(likes)
-
-# def getProfileData(userid):
-#     connection = insta485.model.get_db()
-#     cur = connection.execute(
-#         "SELECT owner, text "
-#         "FROM comments "
-#         "WHERE postid = ?",
-#         (postid, )
-#     )
-#     comments = cur.fetchall()
-#     return comments
 
 
 def getUserFollowers(username):

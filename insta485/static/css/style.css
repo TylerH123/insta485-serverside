@@ -11,6 +11,11 @@ p {
   margin: 0px;
 }
 
+.btn {
+  margin-left: 8px;
+  height: fit-content;
+}
+
 #site_body {
   display: flex;
   justify-content: center;
@@ -92,7 +97,10 @@ hr {
 }
 
 .post_stats {
-  padding: 16px 16px 8px 16px;
+  padding: 16px 16px 4px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .comment_section {
@@ -107,19 +115,53 @@ hr {
   gap: 8px;
 }
 
+.delete_comment {
+  margin-left: auto;
+}
+
+.comment_input {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+}
+
+.comment_input_text {
+  flex-grow: 1;
+}
+
+.delete_post {
+  margin-top: 32px;
+  margin-left: auto;
+}
+
 #user_info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   width: 640px;
   margin-bottom: 24px;
 }
 
-.following_status {
-  margin-bottom: 8px;
+#user_head {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.follow-button {
+  display: inline;
 }
 
 #user_stats {
   display: flex;
   gap: 16px;
-  margin-bottom: 8px;
+}
+
+#upload_photo {
+  border: 1px solid grey;
+  border-radius: 4px;
+  margin-top: 8px;
+  padding: 16px;
 }
 
 #user_posts {
@@ -153,5 +195,7 @@ hr {
 }
 
 .follower_item_right {
-  color: gray
+  color: gray;
+  display: flex;
+  align-items: center;
 }
