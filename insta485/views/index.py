@@ -20,6 +20,8 @@ def retrieve_image(name):
 @insta485.app.route('/')
 def show_index():
     """Display / route."""
+    if 'username' not in flask.session: 
+        return flask.redirect(flask.url_for(show_login)) 
     context = {
         "logname": "awdeorio",
         "posts": []
@@ -43,6 +45,8 @@ def show_index():
 @insta485.app.route('/users/<path:username>/')
 def show_user(username):
     """Display /users/<username> route."""
+    if 'username' not in flask.session: 
+        return flask.redirect(flask.url_for(show_login)) 
     context = {
         "logname": "awdeorio",
         "username": username,
@@ -66,6 +70,8 @@ def show_user(username):
 @insta485.app.route('/posts/<path:postid>/')
 def show_posts(postid):
     """Display /posts/<postid>/ route."""
+    if 'username' not in flask.session: 
+        return flask.redirect(flask.url_for(show_login)) 
     post = model.get_post_data(postid)
     context = {
         "logname": "awdeorio",
@@ -81,6 +87,8 @@ def show_posts(postid):
 @insta485.app.route('/users/<path:username>/followers/')
 def show_followers(username):
     """Display /users/<username>/follower route."""
+    if 'username' not in flask.session: 
+        return flask.redirect(flask.url_for(show_login)) 
     context = {
         "logname": "awdeorio",
         "followers": []
@@ -104,6 +112,8 @@ def show_followers(username):
 @insta485.app.route('/users/<path:username>/following/')
 def show_following(username):
     """Display /users/<userid>/following route."""
+    if 'username' not in flask.session: 
+        return flask.redirect(flask.url_for(show_login)) 
     context = {
         "logname": "awdeorio",
         "following": []
@@ -128,6 +138,8 @@ def show_following(username):
 @insta485.app.route('/explore/')
 def show_explore():
     """Display /explore/ route."""
+    if 'username' not in flask.session: 
+        return flask.redirect(flask.url_for(show_login)) 
     context = {
         "logname": "awdeorio",
         "not_following": []
@@ -145,3 +157,11 @@ def show_explore():
         context["not_following"].append(user)
 
     return flask.render_template("explore.html", **context)
+
+@insta485.app.route('/accounts/login/')
+def show_login(): 
+    """Display login route."""
+    if 'username' in flask.session:
+        return flask.redirect(flask.url_for(show_index))
+    flask.session['username'] = flask.request.form['username']
+    return flask.render_template("explore.html")
