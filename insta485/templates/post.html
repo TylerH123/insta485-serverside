@@ -4,35 +4,27 @@
   <div id="feed">
     <div class="post">
       <div class="post_header">
-        <a href="/users/{{ context['owner'] }}/">
+        <a href="/users/{{ owner }}/">
           <div class="post_header_left">
-            <img
-              class="pfp"
-              alt="{{ context['owner'] }}"
-              src="{{ context['owner_img_url']}}"
-            />
-            <div class="username">{{ context['owner'] }}</div>
+            <img class="pfp" alt="{{ owner }}" src="{{ user_filename }}" />
+            <div class="username">{{ owner }}</div>
           </div>
         </a>
-        <a href="/posts/{{ context['postid'] }}/">
-          <div class="timestamp">{{ context['timestamp'] }}</div>
+        <a href="/posts/{{ postid }}/">
+          <div class="timestamp">{{ created }}</div>
         </a>
       </div>
-      <img
-        alt="{{ context['img_url'] }}"
-        class="photo"
-        src="{{ context['img_url'] }}"
-      />
+      <img alt="image url" class="photo" src="{{ filename }}" />
       <div class="post_stats">
-        {{ context['likes'] }} 
-        {% if context['likes'] == 1 %}
-          like
+        {{ likes }}
+        {% if likes == 1 %}
+        like
         {% else %}
-          likes
+        likes
         {% endif %}
       </div>
       <div class="comment_section">
-        {% for comment in context['comments'] %}
+        {% for comment in comments %}
         <div class="comment">
           <a href="/users/{{ comment['owner'] }}/">
             <div class="username">{{ comment['owner'] }}</div>

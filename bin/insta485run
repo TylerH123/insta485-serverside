@@ -1,7 +1,8 @@
 #!/bin/bash
 echo 'test -e var/insta485.sqlite3'
-if test -e var/insta485.sqlite3
+if ! test -e var/insta485.sqlite3
 then
+  echo "./bin/insta485db create"
   ./bin/insta485db create
 fi
 echo 'export FLASK_ENV=development'

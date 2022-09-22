@@ -2,6 +2,7 @@
 import sqlite3
 import flask
 import insta485
+import arrow
 
 def dict_factory(cursor, row):
     """Convert database row objects to a dictionary keyed on column name.
@@ -36,23 +37,6 @@ def close_db(error):
         sqlite_db.commit()
         sqlite_db.close()
 
-def getPostData(postid):
-    connection = insta485.model.get_db()
-    cur = connection.execute(
-        "SELECT * "
-        "FROM posts "
-        "WHERE postid = ?",
-        (postid, )
-    )
-    post = cur.fetchone()
-    post["filename"] = "/uploads/" + post["filename"]
-
-    post["user_filename"] = getUserPhoto(post["owner"])
-    post["comments"] = getPostComments(postid)
-    post["likes"] = getPostLikeCount(postid)
-
-    return post
-
 def getUserPhoto(username):
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -61,8 +45,41 @@ def getUserPhoto(username):
         "WHERE username = ?",
         (username, )
     )
-    filename = "/uploads/" + cur.fetchone()["filename"]
+    filename = "/uploads/" + cur.fetchone()["filename"] + "/"
     return filename
+
+def getUserPosts(username):
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        "SELECT postid "
+        "FROM posts "
+        "WHERE owner = ?",
+        (username, )
+    )
+    postsData = cur.fetchall()
+    
+    posts = []
+    for p in postsData:
+        posts.append(getPostData(p["postid"]))
+    
+    return posts
+
+def getPostData(postid):
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        "SELECT * "
+        "FROM posts "
+        "WHERE postid = ?",
+        (postid, )
+    )
+
+    post = cur.fetchone()
+    post["filename"] = "/uploads/" + post["filename"] + "/"
+    post["user_filename"] = getUserPhoto(post["owner"])
+    post["comments"] = getPostComments(postid)
+    post["likes"] = getPostLikeCount(postid)
+    post["created"] = arrow.get(post['created']).humanize()
+    return post
 
 def getPostComments(postid):
     connection = insta485.model.get_db()
@@ -85,3 +102,64 @@ def getPostLikeCount(postid):
     )
     likes = cur.fetchall()
     return len(likes)
+
+# def getProfileData(userid):
+#     connection = insta485.model.get_db()
+#     cur = connection.execute(
+#         "SELECT owner, text "
+#         "FROM comments "
+#         "WHERE postid = ?",
+#         (postid, )
+#     )
+#     comments = cur.fetchall()
+#     return comments
+
+def getUserFollowers(username):
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        "SELECT username1 "
+        "FROM following "
+        "WHERE username2 = ?",
+        (username, )
+    )
+    followersData = cur.fetchall()
+
+    followers = []
+    for item in followersData:
+        followers.append(item['username1'])
+
+    return followers
+
+def getUserFollowing(username):
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        "SELECT username2 "
+        "FROM following "
+        "WHERE username1 = ?",
+        (username, )
+    )
+    followingData = cur.fetchall()
+
+    following = []
+    for item in followingData:
+        following.append(item['username2'])
+
+    return following
+
+def getUserNotFollowing(username):
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        "SELECT username "
+        "FROM users "
+        "MINUS"
+        "SELECT username2 "
+        "FROM following "
+        "WHERE username1 = ?",
+        (username, )
+        
+    )
+    notFollowingData = cur.fetchall()
+    notFollowing = []
+    for item in notFollowingData:
+        notFollowing.append(item['username'])
+    return notFollowing

@@ -2,16 +2,12 @@
 {% block body %}
 <div id="site_body">
   <div id="feed">
-    {% for post in context['posts'] %}
+    {% for post in posts %}
     <div class="post">
       <div class="post_header">
         <a href="/users/{{ post['owner'] }}/">
           <div class="post_header_left">
-            <img
-              class="pfp"
-              alt="{{ post['owner'] }}"
-              src="{{ post['user_filename']}}"
-            />
+            <img class="pfp" alt="post owner" src="{{ post['user_filename']}}" />
             <div class="username">{{ post['owner'] }}</div>
           </div>
         </a>
@@ -19,17 +15,13 @@
           <div class="timestamp">{{ post['created'] }}</div>
         </a>
       </div>
-      <img
-        alt="{{ post['filename'] }}"
-        class="photo"
-        src="{{ post['filename'] }}"
-      />
+      <img alt="{{ post['filename'] }}" class="photo" src="{{ post['filename'] }}" />
       <div class="post_stats">
-        {{ post['likes'] }} 
+        {{ post['likes'] }}
         {% if post['likes'] == 1 %}
-          like
+        like
         {% else %}
-          likes
+        likes
         {% endif %}
       </div>
       <div class="comment_section">
