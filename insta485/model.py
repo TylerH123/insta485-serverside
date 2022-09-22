@@ -4,12 +4,14 @@ import flask
 import insta485
 import arrow
 
+
 def dict_factory(cursor, row):
     """Convert database row objects to a dictionary keyed on column name.
     This is useful for building dictionaries which are then used to render a
     template.  Note that this would be inefficient for large queries.
     """
     return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
+
 
 def get_db():
     """Open a new database connection.
@@ -25,6 +27,7 @@ def get_db():
         flask.g.sqlite_db.execute("PRAGMA foreign_keys = ON")
     return flask.g.sqlite_db
 
+
 @insta485.app.teardown_appcontext
 def close_db(error):
     """Close the database at the end of a request.
@@ -37,6 +40,7 @@ def close_db(error):
         sqlite_db.commit()
         sqlite_db.close()
 
+
 def getUserPhoto(username):
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -48,6 +52,7 @@ def getUserPhoto(username):
     filename = "/uploads/" + cur.fetchone()["filename"] + "/"
     return filename
 
+
 def getUserPosts(username):
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -57,12 +62,11 @@ def getUserPosts(username):
         (username, )
     )
     postsData = cur.fetchall()
-    
     posts = []
     for p in postsData:
         posts.append(getPostData(p["postid"]))
-    
     return posts
+
 
 def getPostData(postid):
     connection = insta485.model.get_db()
@@ -81,6 +85,7 @@ def getPostData(postid):
     post["created"] = arrow.get(post['created']).humanize()
     return post
 
+
 def getPostComments(postid):
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -91,6 +96,7 @@ def getPostComments(postid):
     )
     comments = cur.fetchall()
     return comments
+
 
 def getPostLikeCount(postid):
     connection = insta485.model.get_db()
@@ -114,6 +120,7 @@ def getPostLikeCount(postid):
 #     comments = cur.fetchall()
 #     return comments
 
+
 def getUserFollowers(username):
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -129,6 +136,7 @@ def getUserFollowers(username):
         followers.append(item['username1'])
 
     return followers
+
 
 def getUserFollowing(username):
     connection = insta485.model.get_db()
@@ -146,6 +154,7 @@ def getUserFollowing(username):
 
     return following
 
+
 def getUserNotFollowing(username):
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -156,7 +165,6 @@ def getUserNotFollowing(username):
         "FROM following "
         "WHERE username1 = ?",
         (username, )
-        
     )
     notFollowingData = cur.fetchall()
     notFollowing = []

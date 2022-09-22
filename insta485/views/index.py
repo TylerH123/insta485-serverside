@@ -1,5 +1,6 @@
 """
 Insta485 index (main) view.
+
 URLs include:
 /
 """
@@ -7,42 +8,42 @@ import flask
 import insta485
 from insta485.model import *
 
+
 @insta485.app.route("/uploads/<path:name>/")
 def retrieveImage(name):
+    """Send image link."""
     return flask.send_from_directory(
         insta485.app.config['UPLOAD_FOLDER'], name, as_attachment=True
     )
 
+
 @insta485.app.route('/')
 def show_index():
-    """Display / route"""
-
-    context = { 
+    """Display / route."""
+    context = {
         "logname": "awdeorio",
         "posts": []
     }
 
-    # Get all posts 
+    # Get all posts
     connection = insta485.model.get_db()
     cur = connection.execute(
         "SELECT postid "
         "FROM posts "
     )
     post_id_list = cur.fetchall()
-    
     # Get all relevant data for each post
     for item in post_id_list:
         postid = item['postid']
         postData = getPostData(postid)
         context["posts"].append(postData)
-    
     return flask.render_template("index.html", **context)
+
 
 @insta485.app.route('/users/<path:username>/')
 def show_user(username):
     """Display /users/<username> route."""
-    
-    context = { 
+    context = {
         "logname": "awdeorio",
         "username": username,
     }
@@ -56,7 +57,6 @@ def show_user(username):
     posts = getUserPosts(username)
     context['posts'] = posts
     context['total_posts'] = len(posts)
-    
     context['followers'] = len(getUserFollowers(username))
     context['following'] = len(getUserFollowing(username))
 
@@ -65,24 +65,23 @@ def show_user(username):
 
 @insta485.app.route('/posts/<path:postid>/')
 def show_posts(postid):
-    """Display /posts/<postid>/ route"""
-
+    """Display /posts/<postid>/ route."""
     post = getPostData(postid)
-    context = { 
+    context = {
         "logname": "awdeorio",
         "postid": postid
     }
 
-    for entry in post: 
+    for entry in post:
         context[entry] = post[entry]
 
     return flask.render_template("post.html", **context)
 
+
 @insta485.app.route('/users/<path:username>/followers/')
 def show_followers(username):
-    """Display /users/<username>/follower route"""
-
-    context = { 
+    """Display /users/<username>/follower route."""
+    context = {
         "logname": "awdeorio",
         "followers": []
     }
@@ -102,11 +101,11 @@ def show_followers(username):
 
     return flask.render_template("followers.html", **context)
 
+
 @insta485.app.route('/users/<path:username>/following/')
 def show_following(username):
-    """Display /users/<userid>/following route"""
-
-    context = { 
+    """Display /users/<userid>/following route."""
+    context = {
         "logname": "awdeorio",
         "following": []
     }
@@ -125,11 +124,11 @@ def show_following(username):
 
     return flask.render_template("following.html", **context)
 
+
 @insta485.app.route('/explore/')
 def show_explore():
-    """Display /explore/ route"""
-
-    context = { 
+    """Display /explore/ route."""
+    context = {
         "logname": "awdeorio",
         "not_following": []
     }
