@@ -143,14 +143,13 @@ def show_explore(username):
     not_following_list = getUserFollowing(username)
 
     # Get all users that username follows
-    for not_following in not_following_list:
+    for notfollowing in not_following_list:
+        print(notfollowing)
         user = {
-            "username": following,
+            "username": notfollowing,
             "user_img_url": "",
-            "logname_follows_username": True
         }
-        user["user_img_url"] = getUserPhoto(following)
-        user["logname_follows_username"] = context["logname"] in following_list
-        context["following"].append(user)
+        user["user_img_url"] = getUserPhoto(notfollowing)
+        context["not_following"].append(user)
 
-    return flask.render_template("following.html", **context)
+    return flask.render_template("explore.html", **context)
