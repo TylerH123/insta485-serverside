@@ -2,15 +2,16 @@
 {% block body %}
 <div id="site_body">
   <div id="login_box">
-    <form id="login" action="<FIXME_ACCOUNTS_URL_HERE>?target=<FIXME_INDEX_URL_HERE>" method="post" enctype="multipart/form-data">
+    <form id="login" action="/accounts/?target=/" method="post" enctype="multipart/form-data">
       <h3>Insta485</h3>
       <label class="login_label" for="username">Username</label>
-      <input type="text" name="username" required/>
+      <input type="text" name="username" required />
       <label class="login_label" for="password">Password</label>
-      <input type="password" name="password" required/>
-      <input class="btn btn-sm btn-success" type="submit" value="login"/>
-      <input type="hidden" name="operation" value="login"/>
+      <input type="password" name="password" required />
+      <input class="btn btn-sm btn-success" type="submit" value="login" />
+      <input type="hidden" name="operation" value="login" />
     </form>
+    Don't have an account?<a href="/accounts/create/">Sign up</a>
   </div>
 </div>
 {% endblock %}
