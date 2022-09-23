@@ -43,28 +43,15 @@ def close_db(error):
 
 # ===== LOGIN =====
 
-def get_all_usernames():
-    '''Get all existing usernames from table.'''
-    connection = insta485.model.get_db()
-    cur = connection.execute(
-        'SELECT username '
-        'FROM users ',
-    )
-    usernames_data = cur.fetchall()
-    usernames = []
-    for item in usernames_data:
-        usernames.append(item['username'])
-    return usernames
-
-
 def put_new_user(user_data):
     connection = insta485.model.get_db()
     connection.execute(
-        'INSERT INTO users '
-        'VALUES ?, ?, ?, ?, ? ',
+        'INSERT INTO '
+        'users (username, fullname, email, filename, password) '
+        'VALUES (?, ?, ?, ?, ?)',
         (*user_data, )
     )
-    return
+
 
 def upload_file(fileobj):
     filename = fileobj.filename
@@ -75,14 +62,15 @@ def upload_file(fileobj):
     fileobj.save(path)
     return uuid_basename
 
+
 def hash_password(password, salt = None):
     algorithm = 'sha512'
     user_salt = salt if salt is not None else uuid.uuid4().hex
     hash_obj = hashlib.new(algorithm)
-    password_salted = salt + password
+    password_salted = user_salt + password
     hash_obj.update(password_salted.encode('utf-8'))
     password_hash = hash_obj.hexdigest()
-    password_db_string = '$'.join([algorithm, salt, password_hash]) 
+    password_db_string = '$'.join([algorithm, user_salt, password_hash]) 
     return password_db_string
 
 
@@ -226,3 +214,40 @@ def get_post_like_count(postid):
     )
     likes = cur.fetchall()
     return len(likes)
+
+
+def user_like_post(username, postid):
+    '''Return true if user has liked post.'''
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        'SELECT * '
+        'FROM likes '
+        'WHERE postid = ? AND owner = ?',
+        (postid, username)
+    )
+    data = cur.fetchall()
+    return len(data) == 0
+
+def update_likes(like, username, postid):
+    '''Update likes for post.'''
+    if (like):
+        connection = insta485.model.get_db()
+        cur = connection.execute(
+            'INSERT INTO '
+            'likes (owner, postid) '
+            'VALUES (?, ?)',
+            (username, postid)
+        )
+    else:
+        connection = insta485.model.get_db()
+        cur = connection.execute(
+            'SELECT * FROM likes '
+            'WHERE owner = ? AND postid = ?',
+            (username, postid)
+        )
+        print(cur.fetchall())
+        cur = connection.execute(
+            'DELETE FROM likes '
+            'WHERE owner = ? AND postid = ?',
+            (username, postid)
+        )

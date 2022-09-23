@@ -2,9 +2,10 @@
 {% block body %}
 <div id="site_body">
     <div id="login_box">
+
         <form id="login" action="/accounts/?target=/" method="post" enctype="multipart/form-data">
             <label class="login_label" for="file">Profile Picture</label>
-            <input class="file_input" type="file" name="file" required />
+            <input class="file_input" type="file" name="file" accept="image/*" />
             <label class="login_label" for="fullname">Full name</label>
             <input type="text" name="fullname" required />
             <label class="login_label" for="username">Username</label>
@@ -16,7 +17,10 @@
             <input class="btn btn-sm btn-success" type="submit" name="signup" value="Sign Up" />
             <input type="hidden" name="operation" value="create" />
         </form>
-        Have an account?<a href="/accounts/login/">Log in</a>
+        <div id="login_bottom_message">
+            <b>Have an account?</b>
+            <a href="/accounts/login/"><button class="btn btn-sm btn-primary">Log in</button></a>
+        </div>
     </div>
 </div>
 {% endblock %}

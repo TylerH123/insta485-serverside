@@ -11,7 +11,10 @@
       <input class="btn btn-sm btn-success" type="submit" value="login" />
       <input type="hidden" name="operation" value="login" />
     </form>
-    Don't have an account?<a href="/accounts/create/">Sign up</a>
+    <div id="login_bottom_message">
+      <b>Don't have an account?</b>
+      <a href="/accounts/create/"><button class="btn btn-sm btn-primary">Sign Up</button></a>
+    </div>
   </div>
 </div>
 {% endblock %}

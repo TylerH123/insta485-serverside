@@ -22,12 +22,11 @@ def show_index():
     '''Display / route.'''
     if 'login' not in flask.session: 
         return flask.redirect(flask.url_for('show_login')) 
-
+    username = flask.session['login']
     context = {
-        'logname': 'awdeorio',
+        'logname': username,
         'posts': []
     }
-
     # Get all posts
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -39,6 +38,7 @@ def show_index():
     for item in post_id_list:
         postid = item['postid']
         post_data = model.get_post_data(postid)
+        post_data['not_liked'] = model.user_like_post(username, postid)
         context['posts'].append(post_data)
     return flask.render_template('index.html', **context)
 
@@ -48,12 +48,11 @@ def show_user(username):
     '''Display /users/<username> route.'''
     if 'login' not in flask.session: 
         return flask.redirect(flask.url_for('show_login')) 
-    
+    username = flask.session['login']
     context = {
-        'logname': 'awdeorio',
+        'logname': username,
         'username': username,
     }
-
     user_data = model.get_user_data(username)
     context['fullname'] = user_data['fullname']
 
@@ -74,16 +73,16 @@ def show_posts(postid):
     '''Display /posts/<postid>/ route.'''
     if 'login' not in flask.session: 
         return flask.redirect(flask.url_for('show_login')) 
-    
+    username = flask.session['login']
     post = model.get_post_data(postid)
     context = {
-        'logname': 'awdeorio',
+        'logname': username,
         'postid': postid
     }
 
     for entry in post:
         context[entry] = post[entry]
-
+    context['not_liked'] = model.user_like_post(username, postid)
     return flask.render_template('post.html', **context)
 
 
@@ -92,9 +91,9 @@ def show_followers(username):
     '''Display /users/<username>/follower route.'''
     if 'login' not in flask.session: 
         return flask.redirect(flask.url_for('show_login')) 
-    
+    username = flask.session['login']
     context = {
-        'logname': 'awdeorio',
+        'logname': username,
         'followers': []
     }
 
@@ -118,15 +117,13 @@ def show_following(username):
     '''Display /users/<userid>/following route.'''
     if 'login' not in flask.session: 
         return flask.redirect(flask.url_for('show_login')) 
-    
+    username = flask.session['login']
     context = {
-        'logname': 'awdeorio',
+        'logname': username,
         'following': []
     }
-
     logname_following_list = model.get_user_following(context['logname'])
     following_list = model.get_user_following(username)
-
     # Get all users that username follows
     for following in following_list:
         user = {
@@ -145,14 +142,12 @@ def show_explore():
     '''Display /explore/ route.'''
     if 'login' not in flask.session: 
         return flask.redirect(flask.url_for('show_login')) 
-    
+    username = flask.session['login']
     context = {
-        'logname': 'awdeorio',
+        'logname': username,
         'not_following': []
     }
-
     not_following_list = model.get_user_not_following(context['logname'])
-
     # Get all users that username follows
     for notfollowing in not_following_list:
         user = {
@@ -187,15 +182,29 @@ def show_logout():
 def show_create(): 
     '''Display create account route.'''
     if 'login' in flask.session:
-        return flask.redirect(flask.url_for('show_index'))
+        return flask.redirect(flask.url_for('show_login'))
     context = {
         'login': True
     }
     return flask.render_template('create.html', **context)
 
 
+@insta485.app.route('/accounts/edit/')
+def show_edit(): 
+    '''Display edit account route.'''
+    if 'login' not in flask.session:
+        return flask.redirect(flask.url_for('show_login'))
+    username = flask.session['login']
+    context = {
+        'logname': username,
+        'user_filename': model.get_user_photo(username),
+        **model.get_user_data(username),
+    }
+    return flask.render_template('edit.html', **context)
+
+
 @insta485.app.route('/accounts/', methods=['POST'])
-def login(): 
+def update_accounts(): 
     '''Display login route.'''
     operation = flask.request.form['operation']
     redirect = flask.request.args['target'] if 'target' in flask.request.args \
@@ -213,24 +222,45 @@ def login():
             return flask.abort(403)
         flask.session['login'] = username
         return flask.redirect(redirect)
-    
     elif operation == 'create':
         data = []
-        fields = ['username','fullname', 'email', 'file', 'password']
-        print(flask.request.form)
+        fields = ['username', 'fullname', 'email', 'file', 'password']
         for field in fields:
-            data_field = flask.request.form[field]
-            if data_field == '':
-                flask.abort(400)
             if field == 'file':
                 fileobj = flask.request.files['file']
                 data_field = model.upload_file(fileobj)
+            elif field == 'password':
+                data_field = model.hash_password(flask.request.form['password'])
+            else:
+                data_field = flask.request.form[field]
+                if data_field == '':
+                    flask.abort(400)
             data.append(data_field)
-        
-        existing_usernames = model.get_all_usernames()
-        if flask.request.args['username'] in existing_usernames:
+        existing_username = model.get_user_data(data[0])
+        if existing_username is not None:
             flask.abort(409)
-
         model.put_new_user(data)
+        flask.session['login'] = data[0]
+        return flask.redirect(redirect)
+    # elif operation == 'edit_account':
+        
 
+
+@insta485.app.route('/likes/', methods=['POST'])
+def update_likes(): 
+    '''Display likes route.'''
+    operation = flask.request.form['operation']
+    redirect = flask.request.args['target'] if 'target' in flask.request.args \
+                                            else flask.url_for('show_index')
+    if operation == 'like':        
+        username = flask.session['login']
+        postid = flask.request.form['postid']
+        if (model.user_like_post(username, postid)): 
+            model.update_likes(True, username, postid)           
+        return flask.redirect(redirect)
+    elif operation == 'unlike':
+        username = flask.session['login']
+        postid = flask.request.form['postid']
+        if (not model.user_like_post(username, postid)): 
+            model.update_likes(False, username, postid)           
         return flask.redirect(redirect)

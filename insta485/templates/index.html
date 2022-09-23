@@ -7,7 +7,7 @@
       <div class="post_header">
         <a href="/users/{{ post['owner'] }}/">
           <div class="post_header_left">
-            <img class="pfp" alt="post owner" src="{{ post['user_filename']}}" />
+            <img class="pfp" alt="{{ post['owner'] }}" src="{{ post['user_filename']}}" />
             <div class="username">{{ post['owner'] }}</div>
           </div>
         </a>
@@ -15,27 +15,27 @@
           <div class="timestamp">{{ post['created'] }}</div>
         </a>
       </div>
-      <img alt="{{ post['filename'] }}" class="photo" src="{{ post['filename'] }}" />
+      <img class="photo" alt="{{ post['filename'] }}" src="{{ post['filename'] }}" />
       <div class="post_stats">
         <div>
-            {{ post['likes'] }}
-            {% if post['likes'] == 1 %}
-            like
-            {% else %}
-            likes
-            {% endif %}
+          {{ post['likes'] }}
+          {% if post['likes'] == 1 %}
+          like
+          {% else %}
+          likes
+          {% endif %}
         </div>
-        {%  if not post['logname_liked'] %}
-        <form class="like-button" action="<FIXME_LIKES_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>" method="post" enctype="multipart/form-data">
-          <input type="hidden" name="operation" value="like"/>
-          <input type="hidden" name="postid" value="<FIXME_POST_ID_HERE>"/>
-          <input class="btn btn-sm btn-primary" type="submit" name="like" value="like"/>
+        {% if post['not_liked'] %}
+        <form class="like-button" action="/likes/?target=/" method="post" enctype="multipart/form-data">
+          <input type="hidden" name="operation" value="like" />
+          <input type="hidden" name="postid" value="{{ post['postid'] }}" />
+          <input class="btn btn-sm btn-primary" type="submit" name="like" value="like" />
         </form>
         {% else %}
-        <form action="<FIXME_LIKES_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>" method="post" enctype="multipart/form-data">
-          <input type="hidden" name="operation" value="unlike"/>
-          <input type="hidden" name="postid" value="<FIXME_POST_ID_HERE>"/>
-          <input type="submit" name="unlike" value="unlike"/>
+        <form action="/likes/?target=/" method="post" enctype="multipart/form-data">
+          <input type="hidden" name="operation" value="unlike" />
+          <input type="hidden" name="postid" value="{{ post['postid'] }}" />
+          <input class="btn btn-sm btn-danger" type="submit" name="unlike" value="unlike" />
         </form>
         {% endif %}
       </div>
@@ -48,11 +48,12 @@
           <p>{{ comment['text'] }}</p>
         </div>
         {% endfor %}
-        <form class="comment_input" action="<FIXME_COMMENTS_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>" method="post" enctype="multipart/form-data">
-          <input type="hidden" name="operation" value="create"/>
-          <input type="hidden" name="postid" value="<FIXME_POST_ID_HERE>"/>
-          <input class="comment_input_text" type="text" name="text" required/>
-          <input class="btn btn-sm btn-primary" type="submit" name="comment" value="comment"/>
+        <form class="comment_input" action="<FIXME_COMMENTS_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>"
+          method="post" enctype="multipart/form-data">
+          <input type="hidden" name="operation" value="create" />
+          <input type="hidden" name="postid" value="<FIXME_POST_ID_HERE>" />
+          <input class="comment_input_text" type="text" name="text" required />
+          <input class="btn btn-sm btn-primary" type="submit" name="comment" value="comment" />
         </form>
       </div>
     </div>

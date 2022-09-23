@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block body %}
+<div id="site_body">
+    <div>
+        <div id="user_info">
+            <div id="user_head">
+                <img class="pfp_large" alt="{{ username }}" src="{{ user_filename }}" />
+                <h4>{{ username }}</h4>
+            </div>
+        </div>
+        <form id="edit_account" action="/accounts/?target=/" method="post" enctype="multipart/form-data">
+            <label class="login_label" for="file">Profile Picture</label>
+            <input id="upload_photo" type="file" name="file" accept="image/*" />
+            <label class="login_label" for="fullname">Full Name</label>
+            <input type="text" name="fullname" value="{{ fullname }}" required />
+            <label class="login_label" for="email">Email</label>
+            <input type="text" name="email" value="{{ email }}" required />
+            <input class="btn btn-sm btn-success" type="submit" name="update" value="submit" />
+            <input type="hidden" name="operation" value="edit_account" />
+        </form>
+    </div>
+</div>
+{% endblock %}

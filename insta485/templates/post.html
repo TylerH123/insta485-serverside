@@ -24,17 +24,18 @@
           likes
           {% endif %}
         </div>
-        {%  if not logname_liked %}
-        <form class="like_button" action="<FIXME_LIKES_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>" method="post" enctype="multipart/form-data">
-          <input type="hidden" name="operation" value="like"/>
-          <input type="hidden" name="postid" value="<FIXME_POST_ID_HERE>"/>
-          <input class="btn btn-sm btn-primary" type="submit" name="like" value="like"/>
+        {% if not_liked %}
+        <form class="like_button" action="/likes/?target=/posts/{{ postid }}/" method="post"
+          enctype="multipart/form-data">
+          <input type="hidden" name="operation" value="like" />
+          <input type="hidden" name="postid" value="{{ postid }}" />
+          <input class="btn btn-sm btn-primary" type="submit" name="like" value="like" />
         </form>
         {% else %}
-        <form action="<FIXME_LIKES_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>" method="post" enctype="multipart/form-data">
-          <input type="hidden" name="operation" value="unlike"/>
-          <input type="hidden" name="postid" value="<FIXME_POST_ID_HERE>"/>
-          <input type="submit" name="unlike" value="unlike"/>
+        <form action="/likes/?target=/posts/{{ postid }}/" method="post" enctype="multipart/form-data">
+          <input type="hidden" name="operation" value="unlike" />
+          <input type="hidden" name="postid" value="{{ postid }}" />
+          <input class="btn btn-sm btn-danger" type="submit" name="unlike" value="unlike" />
         </form>
         {% endif %}
       </div>
@@ -46,24 +47,27 @@
           </a>
           <p>{{ comment['text'] }}</p>
           {% if logname == comment['owner'] %}
-          <form class="delete_comment" action="<FIXME_COMMENTS_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="operation" value="delete"/>
-            <input type="hidden" name="commentid" value="<FIXME_COMMENT_ID_HERE>"/>
-            <input class="btn btn-sm btn-secondary" type="submit" name="uncomment" value="delete"/>
+          <form class="delete_comment" action="<FIXME_COMMENTS_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>"
+            method="post" enctype="multipart/form-data">
+            <input type="hidden" name="operation" value="delete" />
+            <input type="hidden" name="commentid" value="<FIXME_COMMENT_ID_HERE>" />
+            <input class="btn btn-sm btn-secondary" type="submit" name="uncomment" value="delete" />
           </form>
           {% endif %}
         </div>
         {% endfor %}
-        <form class="comment_input" action="<FIXME_COMMENTS_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>" method="post" enctype="multipart/form-data">
-          <input type="hidden" name="operation" value="create"/>
-          <input type="hidden" name="postid" value="<FIXME_POST_ID_HERE>"/>
-          <input class="comment_input_text" type="text" name="text" required/>
-          <input class="btn btn-sm btn-primary" type="submit" name="comment" value="comment"/>
+        <form class="comment_input" action="<FIXME_COMMENTS_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>"
+          method="post" enctype="multipart/form-data">
+          <input type="hidden" name="operation" value="create" />
+          <input type="hidden" name="postid" value="<FIXME_POST_ID_HERE>" />
+          <input class="comment_input_text" type="text" name="text" required />
+          <input class="btn btn-sm btn-primary" type="submit" name="comment" value="comment" />
         </form>
-        <form class="delete_post" action="<FIXME_POSTS_URL_HERE>?target=<FIXME_LOGGED_IN_USER_PAGE_URL_HERE>" method="post" enctype="multipart/form-data">
-          <input type="hidden" name="operation" value="delete"/>
-          <input type="hidden" name="postid" value="<FIXME_POST_ID_HERE>"/>
-          <input class="btn btn-sm btn-danger" type="submit" name="delete" value="delete this post"/>
+        <form class="delete_post" action="<FIXME_POSTS_URL_HERE>?target=<FIXME_LOGGED_IN_USER_PAGE_URL_HERE>"
+          method="post" enctype="multipart/form-data">
+          <input type="hidden" name="operation" value="delete" />
+          <input type="hidden" name="postid" value="<FIXME_POST_ID_HERE>" />
+          <input class="btn btn-sm btn-danger" type="submit" name="delete" value="delete this post" />
         </form>
       </div>
     </div>

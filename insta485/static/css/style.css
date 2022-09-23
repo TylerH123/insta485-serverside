@@ -12,7 +12,6 @@ p {
 }
 
 .btn {
-  margin-left: 8px;
   height: fit-content;
 }
 
@@ -55,23 +54,41 @@ hr {
   left: 50%;
   margin-left: -180px;
   margin-top: -240px;
-  height: 440px;
+  min-height: 440px;
   width: 360px;
 
   border: solid 1px lightgrey;
   border-radius: 4px;
 
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-evenly;
+  padding: 12px;
 }
 
 #login {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 12px;
+  padding: 12px;
+}
+
+#login_bottom_message {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+#edit_account {
+  display: flex;
+  flex-direction: column;
   gap: 16px;
   padding: 12px;
+  width: 320px;
 }
 
 .file_input {
@@ -121,6 +138,11 @@ hr {
 .pfp {
   height: 32px;
   width: 32px;
+}
+
+.pfp_large {
+  height: 64px;
+  width: 64px;
 }
 
 .username,
