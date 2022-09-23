@@ -20,6 +20,7 @@ def retrieve_image(name):
 @insta485.app.route('/')
 def show_index():
     """Display / route."""
+    flask.session['username'] = 'awdeorio'
     if 'username' not in flask.session: 
         return flask.redirect(flask.url_for(show_login)) 
     context = {
