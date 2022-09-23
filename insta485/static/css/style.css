@@ -46,7 +46,35 @@ p {
 }
 
 hr {
-  border-top: 1px solid lightgray;
+  border-top: 1px solid lightgrey;
+}
+
+#login_box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -180px;
+  margin-top: -240px;
+  height: 440px;
+  width: 360px;
+
+  border: solid 1px lightgrey;
+  border-radius: 4px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+#login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.login_label {
+  margin-bottom: -12px;
 }
 
 #feed {
@@ -60,7 +88,7 @@ hr {
 
 .post {
   margin: 16px;
-  outline: 1px solid lightgray;
+  outline: 1px solid lightgrey;
   border-radius: 4px;
   width: 480px;
   padding-bottom: 16px;
@@ -80,7 +108,7 @@ hr {
 }
 
 .timestamp {
-  color: gray
+  color: grey
 }
 
 .pfp {
@@ -158,7 +186,7 @@ hr {
 }
 
 #upload_photo {
-  border: 1px solid grey;
+  border: 1px solid lightgrey;
   border-radius: 4px;
   margin-top: 8px;
   padding: 16px;
@@ -184,7 +212,7 @@ hr {
   justify-content: space-between;
   align-items: center;
   padding: 8px;
-  outline: 1px solid lightgray;
+  outline: 1px solid lightgrey;
   border-radius: 4px;
 }
 
@@ -195,7 +223,7 @@ hr {
 }
 
 .follower_item_right {
-  color: gray;
+  color: grey;
   display: flex;
   align-items: center;
 }
