@@ -1,23 +1,24 @@
-'''Insta485 model (database) API.'''
+"""Insta485 model (database) API."""
 import sqlite3
-import flask
-import arrow
-import insta485
 import uuid
 import pathlib
 import hashlib
+import flask
+import arrow
+import insta485
+
 
 def dict_factory(cursor, row):
-    '''Convert database row objects to a dictionary keyed on column name.
+    """Convert database row objects to a dictionary keyed on column name.
 
     This is useful for building dictionaries which are then used to render a
     template.  Note that this would be inefficient for large queries.
-    '''
+    """
     return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
 
 
 def get_db():
-    '''Open a new database connection.'''
+    """Open a new database connection."""
     if 'sqlite_db' not in flask.g:
         db_filename = insta485.app.config['DATABASE_FILENAME']
         flask.g.sqlite_db = sqlite3.connect(str(db_filename))
@@ -30,20 +31,21 @@ def get_db():
 
 @insta485.app.teardown_appcontext
 def close_db(error):
-    '''Close the database at the end of a request.
+    """Close the database at the end of a request.
 
     Flask docs:
     https://flask.palletsprojects.com/en/1.0.x/appcontext/#storing-data
-    '''
+    """
     assert error or not error  # Needed to avoid superfluous style error
     sqlite_db = flask.g.pop('sqlite_db', None)
     if sqlite_db is not None:
         sqlite_db.commit()
         sqlite_db.close()
 
-# ===== LOGIN =====
 
+# ===== LOGIN =====
 def put_new_user(user_data):
+    """Insert new user into table."""
     connection = insta485.model.get_db()
     connection.execute(
         'INSERT INTO '
@@ -54,6 +56,7 @@ def put_new_user(user_data):
 
 
 def upload_file(fileobj):
+    """Upload a file."""
     filename = fileobj.filename
     stem = uuid.uuid4().hex
     suffix = pathlib.Path(filename).suffix
@@ -63,21 +66,22 @@ def upload_file(fileobj):
     return uuid_basename
 
 
-def hash_password(password, salt = None):
+def hash_password(password, salt=None):
+    """Hashes password."""
     algorithm = 'sha512'
     user_salt = salt if salt is not None else uuid.uuid4().hex
     hash_obj = hashlib.new(algorithm)
     password_salted = user_salt + password
     hash_obj.update(password_salted.encode('utf-8'))
     password_hash = hash_obj.hexdigest()
-    password_db_string = '$'.join([algorithm, user_salt, password_hash]) 
+    password_db_string = '$'.join([algorithm, user_salt, password_hash])
     return password_db_string
 
 
 # ===== USER =====
 
 def get_user_data(username):
-    '''Get user data from table.'''
+    """Get user data from table."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         'SELECT * '
@@ -90,7 +94,7 @@ def get_user_data(username):
 
 
 def get_user_photo(username):
-    '''Get user photo link from table.'''
+    """Get user photo link from table."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         'SELECT filename '
@@ -103,7 +107,7 @@ def get_user_photo(username):
 
 
 def get_user_posts(username):
-    '''Get user's post from table.'''
+    """Get user's post from table."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         'SELECT postid '
@@ -119,7 +123,7 @@ def get_user_posts(username):
 
 
 def get_user_followers(username):
-    '''Get all the followers for a user.'''
+    """Get all the followers for a user."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         'SELECT username1 '
@@ -135,7 +139,7 @@ def get_user_followers(username):
 
 
 def get_user_following(username):
-    '''Get all the people that the user is following.'''
+    """Get all the people that the user is following."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         'SELECT username2 '
@@ -151,7 +155,7 @@ def get_user_following(username):
 
 
 def get_user_not_following(username):
-    '''Get all the users that the user is not following.'''
+    """Get all the users that the user is not following."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         'SELECT username '
@@ -173,7 +177,7 @@ def get_user_not_following(username):
 # ===== POSTS =====
 
 def get_post_data(postid):
-    '''Get post data from table.'''
+    """Get post data from table."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         'SELECT * '
@@ -191,7 +195,7 @@ def get_post_data(postid):
 
 
 def get_post_comments(postid):
-    '''Get comments for post.'''
+    """Get comments for post."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         'SELECT owner, text '
@@ -204,7 +208,7 @@ def get_post_comments(postid):
 
 
 def get_post_like_count(postid):
-    '''Get likes for post.'''
+    """Get likes for post."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         'SELECT likeid '
@@ -217,7 +221,7 @@ def get_post_like_count(postid):
 
 
 def user_like_post(username, postid):
-    '''Return true if user has liked post.'''
+    """Return true if user has liked post."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         'SELECT * '
@@ -228,9 +232,10 @@ def user_like_post(username, postid):
     data = cur.fetchall()
     return len(data) == 0
 
+
 def update_likes(like, username, postid):
-    '''Update likes for post.'''
-    if (like):
+    """Update likes for post."""
+    if like:
         connection = insta485.model.get_db()
         cur = connection.execute(
             'INSERT INTO '
