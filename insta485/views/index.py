@@ -285,6 +285,9 @@ def update_comments():
         redirect = flask.request.args['target']
     if operation == 'create':
         username = flask.session['login']
+        if 'text' not in flask.request.form or \
+           'postid' not in flask.request.form:
+            return flask.abort(400)
         postid = flask.request.form['postid']
         text = flask.request.form['text']
         if text is None or text == "":
@@ -293,6 +296,8 @@ def update_comments():
         return flask.redirect(redirect)
     if operation == 'delete':
         username = flask.session['login']
+        if 'commentid' not in flask.request.form:
+            return flask.abort(400)
         commentid = flask.request.form['commentid']
         comment_owner = model.get_comment_owner(commentid)['owner']
         if username == comment_owner:
@@ -322,6 +327,8 @@ def update_posts():
         model.create_post(filename, login_name)
         return flask.redirect(redirect)
     if operation == 'delete':
+        if 'postid' not in flask.request.form:
+            flask.abort(400)
         postid = flask.request.form['postid']
         data = model.get_post_data(postid)
         filename = model.get_post_filename(postid)
