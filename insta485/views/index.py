@@ -12,10 +12,15 @@ from insta485 import model
 @insta485.app.route('/uploads/<path:name>')
 def retrieve_image(name):
     """Send image link."""
-    return flask.send_from_directory(
-        insta485.app.config['UPLOAD_FOLDER'], name, as_attachment=True
-    )
-
+    if 'login' in flask.session:
+        filename = insta485.app.config['UPLOAD_FOLDER']/name
+        if not model.is_file(filename):
+            return flask.abort(404)
+        return flask.send_from_directory(
+            insta485.app.config['UPLOAD_FOLDER'], name, as_attachment=True
+        )
+    else:
+        return flask.abort(403)
 
 @insta485.app.route('/')
 def show_index():
@@ -103,7 +108,7 @@ def show_followers(username):
             'username': follower,
             'logname_follows_username': follower in logname_following_list
         }
-        user['user_img_url'] = model.get_user_photo(follower)
+        user['user_img_url'] = '/uploads/' + model.get_user_photo(follower)
         context['followers'].append(user)
 
     return flask.render_template('followers.html', **context)
@@ -128,7 +133,7 @@ def show_following(username):
             'user_img_url': '',
             'logname_follows_username': following in logname_following_list
         }
-        user['user_img_url'] = model.get_user_photo(following)
+        user['user_img_url'] = '/uploads/' + model.get_user_photo(following)
         context['following'].append(user)
 
     return flask.render_template('following.html', **context)
@@ -151,7 +156,7 @@ def show_explore():
             'username': notfollowing,
             'user_img_url': '',
         }
-        user['user_img_url'] = model.get_user_photo(notfollowing)
+        user['user_img_url'] = '/uploads/' + model.get_user_photo(notfollowing)
         context['not_following'].append(user)
 
     return flask.render_template('explore.html', **context)
@@ -194,7 +199,7 @@ def show_edit():
     login_user = flask.session['login']
     context = {
         'logname': login_user,
-        'user_filename': model.get_user_photo(login_user),
+        'user_filename': '/uploads/' + model.get_user_photo(login_user),
         **model.get_user_data(login_user),
     }
     return flask.render_template('edit.html', **context)
@@ -272,19 +277,21 @@ def update_accounts():
         return flask.redirect(redirect)
     if operation == 'edit_account':
         data = []
-        fields = ['username', 'fullname', 'email', 'file']
+        fields = ['fullname', 'email', 'file']
+        data.append(flask.session['login'])
         for field in fields:
             if field == 'file':
                 fileobj = flask.request.files['file']
-                data_field = model.upload_file(fileobj)
+                if fileobj.filename != "":
+                    data_field = model.upload_file(fileobj)
+                else:
+                    data_field = ""
             else:
                 data_field = flask.request.form[field]
                 if data_field == '':
                     flask.abort(400)
             data.append(data_field)
         model.edit_user_profile(data)
-        # EDIT FLASK SESSION COOKIE 
-        # TODO: 
         return flask.redirect(redirect)
     if operation == 'update_password':
         if 'login' not in flask.session:
@@ -391,66 +398,36 @@ def update_posts():
             flask.abort(403)
         return flask.redirect(redirect)
 
-@insta485.app.route('/follows/', methods=['POST'])
+
+@insta485.app.route('/following/', methods=['POST'])
 def update_follows():
-    """Display login route."""
+    """Display follows route."""
     operation = flask.request.form['operation']
     if 'target' in flask.request.args:
         redirect = flask.request.args['target']
     else:
         redirect = flask.url_for('show_index')
-    if operation == 'login':
-        if 'password' not in flask.request.form or \
-        'username' not in flask.request.form: 
+    logname = flask.session['login']
+    if operation == 'follow':
+        if 'username' not in flask.request.form:
             return flask.abort(400)
-        password = flask.request.form['password']
         username = flask.request.form['username']
-        if username =='' or password == '':
+        if username =='':
             return flask.abort(400)
-        data = model.get_user_data(username)
-        if data is None:
-            return flask.abort(403)
-        hashed_pass = model.hash_password(password,
-                                        data['password'].split('$')[1])
-        if data['password'] != hashed_pass:
-            return flask.abort(403)
-        flask.session['login'] = username
+        data = model.get_user_following(logname)
+        if username in data: #logname already follows username
+            return flask.abort(409)
+        model.set_follows(logname, username)
         return flask.redirect(redirect)
-    if operation == 'create':
-        data = []
-        fields = ['username', 'fullname', 'email', 'file', 'password']
-        for field in fields:
-            if field == 'file':
-                fileobj = flask.request.files['file']
-                data_field = model.upload_file(fileobj)
-            elif field == 'password':
-                password = flask.request.form['password']
-                data_field = model.hash_password(password)
-            else:
-                data_field = flask.request.form[field]
-                if data_field == '':
-                    flask.abort(400)
-            data.append(data_field)
-        existing_username = model.get_user_data(data[0])
-        if existing_username is not None:
-            flask.abort(409)
-        model.put_new_user(data)
-        flask.session['login'] = data[0]
-        return flask.redirect(redirect)
-    if operation == 'edit_account':
-        data = []
-        fields = ['username', 'fullname', 'email', 'file']
-        for field in fields:
-            if field == 'file':
-                fileobj = flask.request.files['file']
-                data_field = model.upload_file(fileobj)
-            else:
-                data_field = flask.request.form[field]
-                if data_field == '':
-                    flask.abort(400)
-            data.append(data_field)
-        model.edit_user_profile(data)
-        # EDIT FLASK SESSION COOKIE 
-        # TODO: 
+    if operation == 'unfollow':
+        if 'username' not in flask.request.form:
+            return flask.abort(400)
+        username = flask.request.form['username']
+        if username =='':
+            return flask.abort(400)
+        data = model.get_user_following(logname)
+        if username not in data: #logname does not follow username
+            return flask.abort(409)
+        model.delete_follows(logname, username)
         return flask.redirect(redirect)
     

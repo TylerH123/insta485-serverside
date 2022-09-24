@@ -8,33 +8,29 @@
       <div class="follower_item">
         <a href="/users/{{ following['username'] }}/">
           <div class="follower_item_left">
-            <img 
-              class="pfp"
-              src="{{ following['user_img_url'] }}" 
-              alt="{{ following['user_img_url'] }}"
-            />
+            <img class="pfp" src="{{ following['user_img_url'] }}" alt="{{ following['user_img_url'] }}" />
             <b>{{ following['username'] }}</b>
           </div>
         </a>
         <div class="follower_item_right">
           {% if logname != following['username'] %}
-            <p class="following_status">
-              {% if following['logname_follows_username']%}
-                following
-                <form class="unfollow-button" action="<FIXME_FOLLOWING_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>" method="post" enctype="multipart/form-data">
-                  <input class="btn btn-sm btn-secondary" type="submit" name="unfollow" value="unfollow"/>
-                  <input type="hidden" name="username" value="<FIXME_USERNAME_HERE>"/>
-                  <input type="hidden" name="operation" value="unfollow"/>
-                </form>
-              {% else %}
-                not following
-                <form class="follow-button" action="<FIXME_FOLLOWING_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>" method="post" enctype="multipart/form-data">
-                  <input class="btn btn-sm btn-secondary" type="submit" name="follow" value="follow"/>
-                  <input type="hidden" name="username" value="<FIXME_USERNAME_HERE>"/>
-                  <input type="hidden" name="operation" value="follow"/>
-                </form>
-              {% endif %}
-            </p>
+          <p class="following_status">
+            {% if following['logname_follows_username']%}
+            following
+          <form class="unfollow-button" action="/following/?target=/" method="post" enctype="multipart/form-data">
+            <input class="btn btn-sm btn-secondary" type="submit" name="unfollow" value="unfollow" />
+            <input type="hidden" name="username" value="{{following['username']}}" />
+            <input type="hidden" name="operation" value="unfollow" />
+          </form>
+          {% else %}
+          not following
+          <form class="follow-button" action="/following/?target=/" method="post" enctype="multipart/form-data">
+            <input class="btn btn-sm btn-secondary" type="submit" name="follow" value="follow" />
+            <input type="hidden" name="username" value="{{following['username']}}" />
+            <input type="hidden" name="operation" value="follow" />
+          </form>
+          {% endif %}
+          </p>
           {% endif %}
         </div>
       </div>
