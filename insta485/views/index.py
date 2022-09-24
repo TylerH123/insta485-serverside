@@ -296,5 +296,16 @@ def update_comments():
         username = flask.session['login']
         postid = flask.request.form['postid']
         text = flask.request.form['text']
-        model.update_comments(True, username, postid, text)
+        if text is None or text == "":
+            flask.abort(400)
+        model.create_comments(True, username, postid, text)
+        return flask.redirect(redirect)
+    if operation == 'delete':
+        username = flask.session['login']
+        commentid = flask.request.form['commentid']
+        comment_owner = model.get_comment_owner(commentid)['owner']
+        if username == comment_owner:
+            model.delete_comments(commentid)
+        else:
+            flask.abort(403)
         return flask.redirect(redirect)

@@ -79,7 +79,6 @@ def hash_password(password, salt=None):
 
 
 # ===== USER =====
-
 def get_user_data(username):
     """Get user data from table."""
     connection = insta485.model.get_db()
@@ -187,9 +186,7 @@ def edit_user_profile(data):
         (fullname, email, filename, username )
     )
 
-
 # ===== POSTS =====
-
 def get_post_data(postid):
     """Get post data from table."""
     connection = insta485.model.get_db()
@@ -212,7 +209,7 @@ def get_post_comments(postid):
     """Get comments for post."""
     connection = insta485.model.get_db()
     cur = connection.execute(
-        'SELECT owner, text '
+        'SELECT * '
         'FROM comments '
         'WHERE postid = ?',
         (postid, )
@@ -271,26 +268,34 @@ def update_likes(like, username, postid):
             (username, postid)
         )
 
-def update_comments(create, username, postid, text):
+def create_comments(username, postid, text):
     """Update comments for post."""
-    if create:
-        connection = insta485.model.get_db()
-        cur = connection.execute(
-            'INSERT INTO '
-            'comments (owner, postid, text) '
-            'VALUES (?, ?, ?)',
-            (username, postid, text)
-        )
-    # else:
-    #     connection = insta485.model.get_db()
-    #     cur = connection.execute(
-    #         'SELECT * FROM likes '
-    #         'WHERE owner = ? AND postid = ?',
-    #         (username, postid)
-    #     )
-    #     print(cur.fetchall())
-    #     cur = connection.execute(
-    #         'DELETE FROM likes '
-    #         'WHERE owner = ? AND postid = ?',
-    #         (username, postid)
-    #     )
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        'INSERT INTO '
+        'comments (owner, postid, text) '
+        'VALUES (?, ?, ?)',
+        (username, postid, text)
+    )
+
+
+def delete_comments(commentid):
+    """Update comments for post."""
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        'DELETE FROM comments '
+        'WHERE commentid = ?',
+        (commentid, )
+    )
+
+
+# ===== Comments =====
+def get_comment_owner(commentid):
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        'SELECT owner '
+        'FROM comments '
+        'WHERE commentid = ?',
+        (commentid, )
+    )
+    return cur.fetchone() 

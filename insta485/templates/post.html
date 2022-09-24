@@ -47,10 +47,10 @@
           </a>
           <p>{{ comment['text'] }}</p>
           {% if logname == comment['owner'] %}
-          <form class="delete_comment" action="<FIXME_COMMENTS_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>"
-            method="post" enctype="multipart/form-data">
+          <form class="delete_comment" action="/comments/?target=/posts/{{ postid }}/" method="post"
+            enctype="multipart/form-data">
             <input type="hidden" name="operation" value="delete" />
-            <input type="hidden" name="commentid" value="<FIXME_COMMENT_ID_HERE>" />
+            <input type="hidden" name="commentid" value="{{ comment['commentid'] }}" />
             <input class="btn btn-sm btn-secondary" type="submit" name="uncomment" value="delete" />
           </form>
           {% endif %}
