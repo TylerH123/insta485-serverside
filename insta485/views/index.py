@@ -200,6 +200,30 @@ def show_edit():
     return flask.render_template('edit.html', **context)
 
 
+@insta485.app.route('/accounts/password/')
+def show_password():
+    """Display password change route."""
+    if 'login' not in flask.session:
+        return flask.redirect(flask.url_for('show_login'))
+    login_user = flask.session['login']
+    context = {
+        'logname': login_user
+    }
+    return flask.render_template('password.html', **context)
+
+
+@insta485.app.route('/accounts/delete/')
+def show_delete():
+    """Display delete account route."""
+    if 'login' not in flask.session:
+        return flask.redirect(flask.url_for('show_login'))
+    login_user = flask.session['login']
+    context = {
+        'logname': login_user
+    }
+    return flask.render_template('delete.html', **context)
+
+
 @insta485.app.route('/accounts/', methods=['POST'])
 def update_accounts():
     """Display login route."""
@@ -259,6 +283,38 @@ def update_accounts():
                     flask.abort(400)
             data.append(data_field)
         model.edit_user_profile(data)
+        # EDIT FLASK SESSION COOKIE 
+        # TODO: 
+        return flask.redirect(redirect)
+    if operation == 'update_password':
+        if 'login' not in flask.session:
+            flask.abort(403)
+        if 'password' not in flask.request.form or \
+           'new_password1' not in flask.request.form or \
+           'new_password2' not in flask.request.form: 
+            return flask.abort(400)
+        old_pass = flask.request.form['password']
+        if old_pass == "":
+            return flask.abort(400)
+        login_user = flask.session['login']
+        data = model.get_user_data(login_user)
+        hashed_pass = model.hash_password(old_pass,
+                                          data['password'].split('$')[1])
+        if data['password'] != hashed_pass:
+            return flask.abort(403)
+        new_pass1 = flask.request.form['new_password1']
+        new_pass2 = flask.request.form['new_password2']
+        if new_pass1 != new_pass2:
+            flask.abort(401)
+        hashed_new_pass = model.hash_password(new_pass1)
+        model.update_password(login_user, hashed_new_pass)
+        return flask.redirect(redirect)
+    if operation == 'delete':
+        if 'login' not in flask.session:
+            flask.abort(403)
+        login_user = flask.session['login']
+        model.delete_user(login_user)
+        flask.session.pop('login')
         return flask.redirect(redirect)
 
 
@@ -333,5 +389,68 @@ def update_posts():
             model.delete_post(postid, filename)
         else:
             flask.abort(403)
+        return flask.redirect(redirect)
+
+@insta485.app.route('/follows/', methods=['POST'])
+def update_follows():
+    """Display login route."""
+    operation = flask.request.form['operation']
+    if 'target' in flask.request.args:
+        redirect = flask.request.args['target']
+    else:
+        redirect = flask.url_for('show_index')
+    if operation == 'login':
+        if 'password' not in flask.request.form or \
+        'username' not in flask.request.form: 
+            return flask.abort(400)
+        password = flask.request.form['password']
+        username = flask.request.form['username']
+        if username =='' or password == '':
+            return flask.abort(400)
+        data = model.get_user_data(username)
+        if data is None:
+            return flask.abort(403)
+        hashed_pass = model.hash_password(password,
+                                        data['password'].split('$')[1])
+        if data['password'] != hashed_pass:
+            return flask.abort(403)
+        flask.session['login'] = username
+        return flask.redirect(redirect)
+    if operation == 'create':
+        data = []
+        fields = ['username', 'fullname', 'email', 'file', 'password']
+        for field in fields:
+            if field == 'file':
+                fileobj = flask.request.files['file']
+                data_field = model.upload_file(fileobj)
+            elif field == 'password':
+                password = flask.request.form['password']
+                data_field = model.hash_password(password)
+            else:
+                data_field = flask.request.form[field]
+                if data_field == '':
+                    flask.abort(400)
+            data.append(data_field)
+        existing_username = model.get_user_data(data[0])
+        if existing_username is not None:
+            flask.abort(409)
+        model.put_new_user(data)
+        flask.session['login'] = data[0]
+        return flask.redirect(redirect)
+    if operation == 'edit_account':
+        data = []
+        fields = ['username', 'fullname', 'email', 'file']
+        for field in fields:
+            if field == 'file':
+                fileobj = flask.request.files['file']
+                data_field = model.upload_file(fileobj)
+            else:
+                data_field = flask.request.form[field]
+                if data_field == '':
+                    flask.abort(400)
+            data.append(data_field)
+        model.edit_user_profile(data)
+        # EDIT FLASK SESSION COOKIE 
+        # TODO: 
         return flask.redirect(redirect)
     

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block body %}
+<div id="site_body">
+    <div>
+        {{ logname }}
+        <form action="/accounts/?target=/" method="post" enctype="multipart/form-data">
+            <input type="submit" name="delete" value="confirm delete account" />
+            <input type="hidden" name="operation" value="delete" />
+        </form>
+    </div>
+</div>
+{% endblock %}

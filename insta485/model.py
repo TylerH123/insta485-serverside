@@ -173,6 +173,7 @@ def get_user_not_following(username):
     not_following.remove(username)
     return not_following
 
+
 def edit_user_profile(data):
     """Update Fullname, Email, Profile Picture."""
     username = data[0]
@@ -186,6 +187,28 @@ def edit_user_profile(data):
         'WHERE username = ?',
         (fullname, email, filename, username )
     )
+
+
+def update_password(username, password): 
+    """"Update password for user."""
+    connection = insta485.model.get_db()
+    connection.execute(
+        'UPDATE users '
+        'SET password = ? '
+        'WHERE username = ?',
+        (password, username)
+    )
+
+
+def delete_user(username): 
+    """"Delete user from table."""
+    connection = insta485.model.get_db()
+    connection.execute(
+        'DELETE FROM users '
+        'WHERE username = ?',
+        (username, )
+    )
+
 
 def is_following(postid, username):
     """Check if current username is following owner of postid."""
@@ -206,6 +229,7 @@ def is_following(postid, username):
         (username, post_owner)
     )
     return len(cur.fetchall()) == 1
+
 
 # ===== POSTS =====
 def get_posts(): 

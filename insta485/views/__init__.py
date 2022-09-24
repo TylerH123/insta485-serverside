@@ -9,6 +9,7 @@ from insta485.views.index import show_login
 from insta485.views.index import show_logout
 from insta485.views.index import show_create
 from insta485.views.index import show_edit
+from insta485.views.index import show_password
 from insta485.views.index import update_accounts
 from insta485.views.index import update_likes
 from insta485.views.index import update_comments
