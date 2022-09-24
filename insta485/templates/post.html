@@ -63,10 +63,10 @@
           <input class="comment_input_text" type="text" name="text" required />
           <input class="btn btn-sm btn-primary" type="submit" name="comment" value="comment" />
         </form>
-        <form class="delete_post" action="<FIXME_POSTS_URL_HERE>?target=<FIXME_LOGGED_IN_USER_PAGE_URL_HERE>"
-          method="post" enctype="multipart/form-data">
+        <form class="delete_post" action="/posts/?target=/users/{{ logname }}/" method="post"
+          enctype="multipart/form-data">
           <input type="hidden" name="operation" value="delete" />
-          <input type="hidden" name="postid" value="<FIXME_POST_ID_HERE>" />
+          <input type="hidden" name="postid" value="{{ postid }}" />
           <input class="btn btn-sm btn-danger" type="submit" name="delete" value="delete this post" />
         </form>
       </div>

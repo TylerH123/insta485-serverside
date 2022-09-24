@@ -11,3 +11,5 @@ from insta485.views.index import show_create
 from insta485.views.index import show_edit
 from insta485.views.index import update_accounts
 from insta485.views.index import update_likes
+from insta485.views.index import update_comments
+from insta485.views.index import update_posts

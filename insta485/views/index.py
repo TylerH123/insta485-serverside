@@ -9,7 +9,7 @@ import insta485
 from insta485 import model
 
 
-@insta485.app.route('/uploads/<path:name>/')
+@insta485.app.route('/uploads/<path:name>')
 def retrieve_image(name):
     """Send image link."""
     return flask.send_from_directory(
@@ -212,9 +212,12 @@ def update_accounts():
     else:
         redirect = flask.url_for('show_index')
     if operation == 'login':
+        if 'password' not in flask.request.form or \
+           'username' not in flask.request.form: 
+            return flask.abort(400)
         password = flask.request.form['password']
         username = flask.request.form['username']
-        if username == '' or password == '':
+        if username =='' or password == '':
             return flask.abort(400)
         data = model.get_user_data(username)
         if data is None:
@@ -275,12 +278,16 @@ def update_likes():
         postid = flask.request.form['postid']
         if model.user_like_post(username, postid):
             model.update_likes(True, username, postid)
+        else:
+            flask.abort(409)
         return flask.redirect(redirect)
     if operation == 'unlike':
         username = flask.session['login']
         postid = flask.request.form['postid']
         if not model.user_like_post(username, postid):
             model.update_likes(False, username, postid)
+        else:
+            flask.abort(409)
         return flask.redirect(redirect)
 
 
@@ -305,7 +312,31 @@ def update_comments():
         commentid = flask.request.form['commentid']
         comment_owner = model.get_comment_owner(commentid)['owner']
         if username == comment_owner:
-            model.delete_comments(commentid)
+            model.delete_comment(commentid)
         else:
             flask.abort(403)
         return flask.redirect(redirect)
+
+
+@insta485.app.route('/posts/', methods=['POST'])
+def update_posts():
+    """Display posts route."""
+    operation = flask.request.form['operation']
+    if 'target' in flask.request.args:
+        redirect = flask.request.args['target']
+    else:
+        redirect = flask.url_for('show_index')
+    if operation == 'create':
+        return flask.redirect(redirect)
+    if operation == 'delete':
+        username = flask.session['login']
+        postid = flask.request.form['postid']
+        data = model.get_post_data(postid)
+        filename = model.get_post_filename(postid)
+        post_owner = data['owner']
+        if username == post_owner:
+            model.delete_post(postid, filename)
+        else:
+            flask.abort(403)
+        return flask.redirect(redirect)
+    

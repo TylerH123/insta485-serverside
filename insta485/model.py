@@ -1,5 +1,6 @@
 """Insta485 model (database) API."""
 import sqlite3
+import os
 import uuid
 import pathlib
 import hashlib
@@ -101,7 +102,7 @@ def get_user_photo(username):
         'WHERE username = ?',
         (username, )
     )
-    filename = '/uploads/' + cur.fetchone()['filename'] + '/'
+    filename = '/uploads/' + cur.fetchone()['filename']
     return filename
 
 
@@ -197,12 +198,24 @@ def get_post_data(postid):
         (postid, )
     )
     post = cur.fetchone()
-    post['filename'] = '/uploads/' + post['filename'] + '/'
+    post['filename'] = '/uploads/' + post['filename']
     post['user_filename'] = get_user_photo(post['owner'])
     post['comments'] = get_post_comments(postid)
     post['likes'] = get_post_like_count(postid)
     post['created'] = arrow.get(post['created']).humanize()
     return post
+
+
+def get_post_filename(postid): 
+    """Get post filename from table."""
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        'SELECT filename '
+        'FROM posts '
+        'WHERE postid = ?',
+        (postid, )
+    )
+    return cur.fetchone()['filename']
 
 
 def get_post_comments(postid):
@@ -268,26 +281,17 @@ def update_likes(like, username, postid):
             (username, postid)
         )
 
-def create_comments(username, postid, text):
-    """Update comments for post."""
+
+def delete_post(postid, filename):
+    """Delete post rom posts."""
     connection = insta485.model.get_db()
     cur = connection.execute(
-        'INSERT INTO '
-        'comments (owner, postid, text) '
-        'VALUES (?, ?, ?)',
-        (username, postid, text)
+        'DELETE FROM posts '
+        'WHERE postid = ?',
+        (postid, )
     )
-
-
-def delete_comments(commentid):
-    """Update comments for post."""
-    connection = insta485.model.get_db()
-    cur = connection.execute(
-        'DELETE FROM comments '
-        'WHERE commentid = ?',
-        (commentid, )
-    )
-
+    path = insta485.app.config["UPLOAD_FOLDER"]/filename
+    os.remove(path)
 
 # ===== Comments =====
 def get_comment_owner(commentid):
@@ -299,3 +303,24 @@ def get_comment_owner(commentid):
         (commentid, )
     )
     return cur.fetchone() 
+
+
+def create_comments(username, postid, text):
+    """Update comments for post."""
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        'INSERT INTO '
+        'comments (owner, postid, text) '
+        'VALUES (?, ?, ?)',
+        (username, postid, text)
+    )
+
+
+def delete_comment(commentid):
+    """Delete comment from comments."""
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        'DELETE FROM comments '
+        'WHERE commentid = ?',
+        (commentid, )
+    )
