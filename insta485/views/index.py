@@ -19,8 +19,8 @@ def retrieve_image(name):
         return flask.send_from_directory(
             insta485.app.config['UPLOAD_FOLDER'], name, as_attachment=True
         )
-    else:
-        return flask.abort(403)
+    return flask.abort(403)
+
 
 @insta485.app.route('/')
 def show_index():
@@ -83,7 +83,7 @@ def show_posts(postid):
     for entry in post:
         context[entry] = post[entry]
     post_owner = post['owner']
-    context['is_owner'] = post_owner == login_user 
+    context['is_owner'] = post_owner == login_user
     context['not_liked'] = model.user_like_post(login_user, postid)
     return flask.render_template('post.html', **context)
 
@@ -176,7 +176,8 @@ def show_login():
 @insta485.app.route('/accounts/logout/', methods=["POST"])
 def show_logout():
     """Display logout route."""
-    flask.session.pop('login')
+    if 'login' in flask.session:
+        flask.session.pop('login')
     return flask.redirect(flask.url_for("show_login"))
 
 
@@ -184,7 +185,7 @@ def show_logout():
 def show_create():
     """Display create account route."""
     if 'login' in flask.session:
-        return flask.redirect(flask.url_for('show_login'))
+        return flask.redirect(flask.url_for('show_edit'))
     context = {
         'login': True
     }
@@ -233,106 +234,29 @@ def show_delete():
 def update_accounts():
     """Display login route."""
     operation = flask.request.form['operation']
+    redirect = flask.url_for('show_index')
     if 'target' in flask.request.args:
         redirect = flask.request.args['target']
-    else:
-        redirect = flask.url_for('show_index')
     if operation == 'login':
-        if 'password' not in flask.request.form or \
-           'username' not in flask.request.form: 
-            return flask.abort(400)
-        password = flask.request.form['password']
-        username = flask.request.form['username']
-        if username =='' or password == '':
-            return flask.abort(400)
-        data = model.get_user_data(username)
-        if data is None:
-            return flask.abort(403)
-        hashed_pass = model.hash_password(password,
-                                          data['password'].split('$')[1])
-        if data['password'] != hashed_pass:
-            return flask.abort(403)
-        flask.session['login'] = username
-        return flask.redirect(redirect)
+        return login(redirect)
     if operation == 'create':
-        data = []
-        fields = ['username', 'fullname', 'email', 'file', 'password']
-        for field in fields:
-            if field == 'file':
-                fileobj = flask.request.files['file']
-                data_field = model.upload_file(fileobj)
-            elif field == 'password':
-                password = flask.request.form['password']
-                data_field = model.hash_password(password)
-            else:
-                data_field = flask.request.form[field]
-                if data_field == '':
-                    flask.abort(400)
-            data.append(data_field)
-        existing_username = model.get_user_data(data[0])
-        if existing_username is not None:
-            flask.abort(409)
-        model.put_new_user(data)
-        flask.session['login'] = data[0]
-        return flask.redirect(redirect)
+        return create(redirect)
     if operation == 'edit_account':
-        data = []
-        fields = ['fullname', 'email', 'file']
-        data.append(flask.session['login'])
-        for field in fields:
-            if field == 'file':
-                fileobj = flask.request.files['file']
-                if fileobj.filename != "":
-                    data_field = model.upload_file(fileobj)
-                else:
-                    data_field = ""
-            else:
-                data_field = flask.request.form[field]
-                if data_field == '':
-                    flask.abort(400)
-            data.append(data_field)
-        model.edit_user_profile(data)
-        return flask.redirect(redirect)
+        return edit(redirect)
     if operation == 'update_password':
-        if 'login' not in flask.session:
-            flask.abort(403)
-        if 'password' not in flask.request.form or \
-           'new_password1' not in flask.request.form or \
-           'new_password2' not in flask.request.form: 
-            return flask.abort(400)
-        old_pass = flask.request.form['password']
-        if old_pass == "":
-            return flask.abort(400)
-        login_user = flask.session['login']
-        data = model.get_user_data(login_user)
-        hashed_pass = model.hash_password(old_pass,
-                                          data['password'].split('$')[1])
-        if data['password'] != hashed_pass:
-            return flask.abort(403)
-        new_pass1 = flask.request.form['new_password1']
-        new_pass2 = flask.request.form['new_password2']
-        if new_pass1 != new_pass2:
-            flask.abort(401)
-        hashed_new_pass = model.hash_password(new_pass1)
-        model.update_password(login_user, hashed_new_pass)
-        return flask.redirect(redirect)
+        return update(redirect)
     if operation == 'delete':
-        if 'login' not in flask.session:
-            flask.abort(403)
-        login_user = flask.session['login']
-        model.delete_user(login_user)
-        flask.session.pop('login')
-        return flask.redirect(redirect)
+        return delete(redirect)
+    return flask.abort(404)
 
 
 @insta485.app.route('/likes/', methods=['POST'])
 def update_likes():
     """Display likes route."""
     operation = flask.request.form['operation']
+    redirect = flask.url_for('show_index')
     if 'target' in flask.request.args:
         redirect = flask.request.args['target']
-    else:
-        redirect = flask.url_for('show_index')
     if operation == 'like':
         username = flask.session['login']
         postid = flask.request.form['postid']
@@ -349,6 +273,7 @@ def update_likes():
         else:
             flask.abort(409)
         return flask.redirect(redirect)
+    return flask.abort(404)
 
 
 @insta485.app.route('/comments/', methods=['POST'])
@@ -375,6 +300,7 @@ def update_comments():
         else:
             flask.abort(403)
         return flask.redirect(redirect)
+    return flask.abort(404)
 
 
 @insta485.app.route('/posts/', methods=['POST'])
@@ -397,6 +323,7 @@ def update_posts():
         else:
             flask.abort(403)
         return flask.redirect(redirect)
+    return flask.abort(404)
 
 
 @insta485.app.route('/following/', methods=['POST'])
@@ -409,25 +336,136 @@ def update_follows():
         redirect = flask.url_for('show_index')
     logname = flask.session['login']
     if operation == 'follow':
-        if 'username' not in flask.request.form:
-            return flask.abort(400)
-        username = flask.request.form['username']
-        if username =='':
-            return flask.abort(400)
-        data = model.get_user_following(logname)
-        if username in data: #logname already follows username
-            return flask.abort(409)
-        model.set_follows(logname, username)
-        return flask.redirect(redirect)
+        return follow(redirect, logname)
     if operation == 'unfollow':
-        if 'username' not in flask.request.form:
-            return flask.abort(400)
-        username = flask.request.form['username']
-        if username =='':
-            return flask.abort(400)
-        data = model.get_user_following(logname)
-        if username not in data: #logname does not follow username
-            return flask.abort(409)
-        model.delete_follows(logname, username)
-        return flask.redirect(redirect)
-    
+        return unfollow(redirect, logname)
+    return flask.abort(404)
+
+
+def login(redirect):
+    """Login."""
+    if 'password' not in flask.request.form or \
+       'username' not in flask.request.form:
+        return flask.abort(400)
+    password = flask.request.form['password']
+    username = flask.request.form['username']
+    if username == '' or password == '':
+        return flask.abort(400)
+    data = model.get_user_data(username)
+    if data is None:
+        return flask.abort(403)
+    hashed_pass = model.hash_password(password,
+                                      data['password'].split('$')[1])
+    if data['password'] != hashed_pass:
+        return flask.abort(403)
+    flask.session['login'] = username
+    return flask.redirect(redirect)
+
+
+def create(redirect):
+    """Create account."""
+    data = []
+    fields = ['username', 'fullname', 'email', 'file', 'password']
+    for field in fields:
+        if field == 'file':
+            fileobj = flask.request.files['file']
+            data_field = model.upload_file(fileobj)
+        elif field == 'password':
+            password = flask.request.form['password']
+            data_field = model.hash_password(password)
+        else:
+            data_field = flask.request.form[field]
+            if data_field == '':
+                flask.abort(400)
+        data.append(data_field)
+    existing_username = model.get_user_data(data[0])
+    if existing_username is not None:
+        flask.abort(409)
+    model.put_new_user(data)
+    flask.session['login'] = data[0]
+    return flask.redirect(redirect)
+
+
+def edit(redirect):
+    """Edit account."""
+    data = []
+    fields = ['fullname', 'email', 'file']
+    data.append(flask.session['login'])
+    for field in fields:
+        if field == 'file':
+            fileobj = flask.request.files['file']
+            if fileobj.filename != "":
+                data_field = model.upload_file(fileobj)
+            else:
+                data_field = ""
+        else:
+            data_field = flask.request.form[field]
+            if data_field == '':
+                flask.abort(400)
+        data.append(data_field)
+    model.edit_user_profile(data)
+    return flask.redirect(redirect)
+
+
+def update(redirect):
+    """Update account."""
+    if 'login' not in flask.session:
+        flask.abort(403)
+    if 'password' not in flask.request.form or \
+       'new_password1' not in flask.request.form or \
+       'new_password2' not in flask.request.form:
+        return flask.abort(400)
+    old_pass = flask.request.form['password']
+    if old_pass == "":
+        return flask.abort(400)
+    login_user = flask.session['login']
+    data = model.get_user_data(login_user)
+    hashed_pass = model.hash_password(old_pass,
+                                      data['password'].split('$')[1])
+    if data['password'] != hashed_pass:
+        return flask.abort(403)
+    new_pass1 = flask.request.form['new_password1']
+    new_pass2 = flask.request.form['new_password2']
+    if new_pass1 != new_pass2:
+        flask.abort(401)
+    hashed_new_pass = model.hash_password(new_pass1)
+    model.update_password(login_user, hashed_new_pass)
+    return flask.redirect(redirect)
+
+
+def delete(redirect):
+    """Delete account."""
+    if 'login' not in flask.session:
+        flask.abort(403)
+    login_user = flask.session['login']
+    model.delete_user(login_user)
+    flask.session.pop('login')
+    return flask.redirect(redirect)
+
+
+def follow(redirect, logname):
+    """Follow users."""
+    if 'username' not in flask.request.form:
+        return flask.abort(400)
+    username = flask.request.form['username']
+    if username == '':
+        return flask.abort(400)
+    data = model.get_user_following(logname)
+    if username in data:  # logname already follows username
+        return flask.abort(409)
+    model.set_follows(logname, username)
+    return flask.redirect(redirect)
+
+
+def unfollow(redirect, logname):
+    """Unfollow users."""
+    if 'username' not in flask.request.form:
+        return flask.abort(400)
+    username = flask.request.form['username']
+    if username == '':
+        return flask.abort(400)
+    data = model.get_user_following(logname)
+    if username not in data:  # logname does not follow username
+        return flask.abort(409)
+    model.delete_follows(logname, username)
+    return flask.redirect(redirect)

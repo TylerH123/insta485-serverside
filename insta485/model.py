@@ -80,8 +80,9 @@ def hash_password(password, salt=None):
 
 
 def is_file(file):
-    """Checks if file exists."""
+    """Check if file exists."""
     return os.path.exists(file)
+
 
 # ===== USER =====
 def get_user_data(username):
@@ -106,7 +107,8 @@ def get_user_photo(username):
         'WHERE username = ?',
         (username, )
     )
-    return cur.fetchone()['filename'] 
+    return cur.fetchone()['filename']
+
 
 def get_user_posts(username):
     """Get user's post from table."""
@@ -124,7 +126,7 @@ def get_user_posts(username):
     return posts
 
 
-def get_user_posts_filename(username): 
+def get_user_posts_filename(username):
     """Get user's post from table."""
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -193,7 +195,7 @@ def edit_user_profile(data):
     username = data[0]
     fullname = data[1]
     email = data[2]
-    if data[3] == "": 
+    if data[3] == "":
         photo = get_user_photo(username)
     else:
         photo = data[3]
@@ -202,12 +204,12 @@ def edit_user_profile(data):
         'UPDATE users '
         'SET fullname = ?, email = ?, filename = ? '
         'WHERE username = ?',
-        (fullname, email, photo, username )
+        (fullname, email, photo, username)
     )
 
 
-def update_password(username, password): 
-    """"Update password for user."""
+def update_password(username, password):
+    """Update password for user."""
     connection = insta485.model.get_db()
     connection.execute(
         'UPDATE users '
@@ -218,7 +220,7 @@ def update_password(username, password):
 
 
 def set_follows(username1, username2):
-    """Set username1 to follow username2"""
+    """Set username1 to follow username2."""
     connection = insta485.model.get_db()
     connection.execute(
         'INSERT INTO '
@@ -239,13 +241,13 @@ def delete_follows(username1, username2):
     )
 
 
-def delete_user(username): 
-    """"Delete user from table."""
+def delete_user(username):
+    """Delete user from table."""
     files = set()
     files.add(get_user_photo(username))
-    posts = get_user_posts_filename(username) 
+    posts = get_user_posts_filename(username)
     print(posts)
-    for entry in posts: 
+    for entry in posts:
         files.add(entry['filename'])
     for file in files:
         path = insta485.app.config["UPLOAD_FOLDER"]/file
@@ -280,14 +282,14 @@ def is_following(postid, username):
 
 
 # ===== POSTS =====
-def get_posts(): 
+def get_posts():
     """Get posts from table."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         'SELECT * '
         'FROM posts '
     )
-    return cur.fetchall() 
+    return cur.fetchall()
 
 
 def get_post_data(postid):
@@ -308,7 +310,7 @@ def get_post_data(postid):
     return post
 
 
-def get_post_filename(postid): 
+def get_post_filename(postid):
     """Get post filename from table."""
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -394,8 +396,10 @@ def delete_post(postid, filename):
     path = insta485.app.config["UPLOAD_FOLDER"]/filename
     os.remove(path)
 
+
 # ===== Comments =====
 def get_comment_owner(commentid):
+    """Return the owner of a comment."""
     connection = insta485.model.get_db()
     cur = connection.execute(
         'SELECT owner '
@@ -403,7 +407,7 @@ def get_comment_owner(commentid):
         'WHERE commentid = ?',
         (commentid, )
     )
-    return cur.fetchone() 
+    return cur.fetchone()
 
 
 def create_comment(username, postid, text):
