@@ -1,8 +1,12 @@
-{% extends "base.html" %}
-{% block body %}
+{% extends "base.html" %} {% block body %}
 <div id="site_body">
   <div id="login_box">
-    <form id="login" action="/accounts/?target=/" method="post" enctype="multipart/form-data">
+    <form
+      id="login"
+      action="/accounts/?target=/"
+      method="post"
+      enctype="multipart/form-data"
+    >
       <h3>Insta485</h3>
       <label class="login_label" for="username">Username</label>
       <input type="text" name="username" required />
@@ -13,7 +17,9 @@
     </form>
     <div id="login_bottom_message">
       <b>Don't have an account?</b>
-      <a href="/accounts/create/"><button class="btn btn-sm btn-primary">Sign Up</button></a>
+      <a href="/accounts/create/"
+        ><button class="btn btn-sm btn-primary">Sign Up</button></a
+      >
     </div>
   </div>
 </div>

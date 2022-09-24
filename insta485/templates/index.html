@@ -1,14 +1,16 @@
-{% extends "base.html" %}
-{% block body %}
+{% extends "base.html" %} {% block body %}
 <div id="site_body">
   <div id="feed">
-    {% for post in posts %}
-    {% if post['is_following'] %}
+    {% for post in posts %} {% if post['is_following'] %}
     <div class="post">
       <div class="post_header">
         <a href="/users/{{ post['owner'] }}/">
           <div class="post_header_left">
-            <img class="pfp" alt="{{ post['owner'] }}" src="{{ post['user_filename']}}" />
+            <img
+              class="pfp"
+              alt="{{ post['owner'] }}"
+              src="{{ post['user_filename']}}"
+            />
             <div class="username">{{ post['owner'] }}</div>
           </div>
         </a>
@@ -16,27 +18,46 @@
           <div class="timestamp">{{ post['created'] }}</div>
         </a>
       </div>
-      <img class="photo" alt="{{ post['filename'] }}" src="{{ post['filename'] }}" />
+      <img
+        class="photo"
+        alt="{{ post['filename'] }}"
+        src="{{ post['filename'] }}"
+      />
       <div class="post_stats">
         <div>
-          {{ post['likes'] }}
-          {% if post['likes'] == 1 %}
-          like
-          {% else %}
-          likes
+          {{ post['likes'] }} {% if post['likes'] == 1 %} like {% else %} likes
           {% endif %}
         </div>
         {% if post['not_liked'] %}
-        <form class="like-button" action="/likes/?target=/" method="post" enctype="multipart/form-data">
+        <form
+          class="like-button"
+          action="/likes/?target=/"
+          method="post"
+          enctype="multipart/form-data"
+        >
           <input type="hidden" name="operation" value="like" />
           <input type="hidden" name="postid" value="{{ post['postid'] }}" />
-          <input class="btn btn-sm btn-primary" type="submit" name="like" value="like" />
+          <input
+            class="btn btn-sm btn-primary"
+            type="submit"
+            name="like"
+            value="like"
+          />
         </form>
         {% else %}
-        <form action="/likes/?target=/" method="post" enctype="multipart/form-data">
+        <form
+          action="/likes/?target=/"
+          method="post"
+          enctype="multipart/form-data"
+        >
           <input type="hidden" name="operation" value="unlike" />
           <input type="hidden" name="postid" value="{{ post['postid'] }}" />
-          <input class="btn btn-sm btn-danger" type="submit" name="unlike" value="unlike" />
+          <input
+            class="btn btn-sm btn-danger"
+            type="submit"
+            name="unlike"
+            value="unlike"
+          />
         </form>
         {% endif %}
       </div>
@@ -49,16 +70,25 @@
           <p>{{ comment['text'] }}</p>
         </div>
         {% endfor %}
-        <form class="comment_input" action="/comments/?target=/" method="post" enctype="multipart/form-data">
+        <form
+          class="comment_input"
+          action="/comments/?target=/"
+          method="post"
+          enctype="multipart/form-data"
+        >
           <input type="hidden" name="operation" value="create" />
           <input type="hidden" name="postid" value="{{ post['postid'] }}" />
           <input class="comment_input_text" type="text" name="text" required />
-          <input class="btn btn-sm btn-primary" type="submit" name="comment" value="comment" />
+          <input
+            class="btn btn-sm btn-primary"
+            type="submit"
+            name="comment"
+            value="comment"
+          />
         </form>
       </div>
     </div>
-    {% endif %}
-    {% endfor %}
+    {% endif %} {% endfor %}
   </div>
 </div>
 {% endblock %}

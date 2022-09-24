@@ -206,7 +206,14 @@ hr {
   align-items: center;
 }
 
-.follow-button {
+#following_status {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-top: -8px;
+}
+
+.follow_button {
   display: inline;
 }
 
@@ -256,4 +263,5 @@ hr {
   color: grey;
   display: flex;
   align-items: center;
+  gap: 8px;
 }

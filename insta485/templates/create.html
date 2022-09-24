@@ -1,25 +1,36 @@
-{% extends "base.html" %}
-{% block body %}
+{% extends "base.html" %} {% block body %}
 <div id="site_body">
-    <div id="login_box">
-        <form id="login" action="/accounts/?target=/" method="post" enctype="multipart/form-data">
-            <label class="login_label" for="file">Profile Picture</label>
-            <input class="file_input" type="file" name="file" accept="image/*" />
-            <label class="login_label" for="fullname">Full name</label>
-            <input type="text" name="fullname" required />
-            <label class="login_label" for="username">Username</label>
-            <input type="text" name="username" required />
-            <label class="login_label" for="email">Email</label>
-            <input type="text" name="email" required />
-            <label class="login_label" for="password">Password</label>
-            <input type="password" name="password" required />
-            <input class="btn btn-sm btn-success" type="submit" name="signup" value="Sign Up" />
-            <input type="hidden" name="operation" value="create" />
-        </form>
-        <div id="login_bottom_message">
-            <b>Have an account?</b>
-            <a href="/accounts/login/"><button class="btn btn-sm btn-primary">Log in</button></a>
-        </div>
+  <div id="login_box">
+    <form
+      id="login"
+      action="/accounts/?target=/"
+      method="post"
+      enctype="multipart/form-data"
+    >
+      <label class="login_label">Profile Picture</label>
+      <input class="file_input" type="file" name="file" accept="image/*" />
+      <label class="login_label" for="fullname">Full name</label>
+      <input type="text" name="fullname" required />
+      <label class="login_label" for="username">Username</label>
+      <input type="text" name="username" required />
+      <label class="login_label" for="email">Email</label>
+      <input type="text" name="email" required />
+      <label class="login_label" for="password">Password</label>
+      <input type="password" name="password" required />
+      <input
+        class="btn btn-sm btn-success"
+        type="submit"
+        name="signup"
+        value="Sign Up"
+      />
+      <input type="hidden" name="operation" value="create" />
+    </form>
+    <div id="login_bottom_message">
+      <b>Have an account?</b>
+      <a href="/accounts/login/"
+        ><button class="btn btn-sm btn-primary">Log in</button></a
+      >
     </div>
+  </div>
 </div>
 {% endblock %}

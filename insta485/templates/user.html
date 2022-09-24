@@ -1,5 +1,4 @@
-{% extends "base.html" %}
-{% block body %}
+{% extends "base.html" %} {% block body %}
 <div id="site_body">
   <div id="feed">
     <div id="user_info">
@@ -7,52 +6,76 @@
         <h2>{{ username }}</h2>
         {% if logname == username %}
         <a href="/accounts/edit/">Edit profile</a>
-        <form action="/accounts/logout/" method="post" enctype="multipart/form-data">
-          <input class="btn btn-sm btn-secondary" type="submit" name="logout" value="Logout" />
+        <form
+          action="/accounts/logout/"
+          method="post"
+          enctype="multipart/form-data"
+        >
+          <input
+            class="btn btn-sm btn-secondary"
+            type="submit"
+            name="logout"
+            value="Logout"
+          />
         </form>
         {% endif %}
       </div>
       {% if logname != username %}
-      <b id="following_status">
+      <div id="following_status">
         {% if logname_follows_username %}
-        following
-        <form class="follow-button" action="/following/?target=/" method="post" enctype="multipart/form-data">
-          <input class="btn btn-sm btn-secondary" type="submit" name="unfollow" value="unfollow" />
+        <b>following</b>
+        <form
+          class="follow_button"
+          action="/following/?target=/"
+          method="post"
+          enctype="multipart/form-data"
+        >
+          <input
+            class="btn btn-sm btn-secondary"
+            type="submit"
+            name="unfollow"
+            value="unfollow"
+          />
           <input type="hidden" name="username" value="{{ username }}" />
           <input type="hidden" name="operation" value="unfollow" />
         </form>
         {% else %}
-        not following
-        <form action="/following/?target=/" method="post" enctype="multipart/form-data">
-          <input type="submit" name="follow" value="follow" />
+        <b>not following</b>
+        <form
+          action="/following/?target=/"
+          method="post"
+          enctype="multipart/form-data"
+        >
+          <input
+            class="btn btn-sm btn-primary"
+            type="submit"
+            name="follow"
+            value="follow"
+          />
           <input type="hidden" name="username" value="{{ username }}" />
           <input type="hidden" name="operation" value="follow" />
         </form>
         {% endif %}
-      </b>
+      </div>
       {% endif %}
       <div id="user_stats">
         <p>
-          {{ total_posts }}
-          {% if total_posts == 1 %}
-          post
-          {% else %}
-          posts
-          {% endif %}
+          {{ total_posts }} {% if total_posts == 1 %} post {% else %} posts {%
+          endif %}
         </p>
         <a href="/users/{{ username }}/followers/">
-          {{ followers }}
-          {% if posts == 1 %}
-          follower
-          {% else %}
-          followers
-          {% endif %}
+          {{ followers }} {% if posts == 1 %} follower {% else %} followers {%
+          endif %}
         </a>
         <a href="/users/{{ username }}/following/">{{ following }} following</a>
       </div>
       <div>{{ fullname }}</div>
       <div id="upload_photo">
-        <form action="/posts/?target=/users/{{ logname }}/" method="post" enctype="multipart/form-data">
+        <form
+          action="/posts/?target=/users/{{ logname }}/"
+          method="post"
+          enctype="multipart/form-data"
+        >
           <input type="file" name="file" accept="image/*" required />
           <input type="submit" name="create_post" value="upload new post" />
           <input type="hidden" name="operation" value="create" />
@@ -66,13 +89,15 @@
         {% for col in row %}
         <div class="col-md user_post">
           <a href="/posts/{{ col['postid'] }}/">
-            <img class="photo" alt="{{ col['img_url'] }}" src="{{ col['filename'] }}" />
+            <img
+              class="photo"
+              alt="{{ col['img_url'] }}"
+              src="{{ col['filename'] }}"
+            />
           </a>
         </div>
-        {% endfor %}
-        {% for space in range(3 - posts|length) %}
-        <div class="col-md user_post">
-        </div>
+        {% endfor %} {% for space in range(3 - posts|length) %}
+        <div class="col-md user_post"></div>
         {% endfor %}
       </div>
       {% endfor %}

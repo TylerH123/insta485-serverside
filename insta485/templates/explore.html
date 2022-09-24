@@ -1,5 +1,4 @@
-{% extends "base.html" %}
-{% block body %}
+{% extends "base.html" %} {% block body %}
 <div id="site_body">
   <div id="feed">
     <h4>Discover People</h4>
@@ -8,14 +7,32 @@
       <div class="follower_item">
         <a href="/users/{{ user['username'] }}/">
           <div class="follower_item_left">
-            <img class="pfp" src="{{ user['user_img_url'] }}" alt="{{ user['user_img_url'] }}" />
+            <img
+              class="pfp"
+              src="{{ user['user_img_url'] }}"
+              alt="{{ user['user_img_url'] }}"
+            />
             <b>{{ user['username'] }}</b>
           </div>
         </a>
         <div class="follower_item_right">
-          <form class="follow-button" action="/following/?target=/" method="post" enctype="multipart/form-data">
-            <input class="btn btn-sm btn-secondary" type="submit" name="follow" value="follow" />
-            <input type="hidden" name="username" value="{{ user['username'] }}" />
+          <form
+            class="follow_button"
+            action="/following/?target=/"
+            method="post"
+            enctype="multipart/form-data"
+          >
+            <input
+              class="btn btn-sm btn-secondary"
+              type="submit"
+              name="follow"
+              value="follow"
+            />
+            <input
+              type="hidden"
+              name="username"
+              value="{{ user['username'] }}"
+            />
             <input type="hidden" name="operation" value="follow" />
           </form>
         </div>
