@@ -6,9 +6,7 @@
       <div id="user_head">
         <h2>{{ username }}</h2>
         {% if logname == username %}
-        <a href="/accounts/edit/">
-          <button class="btn btn-sm btn-primary">Edit Profile</button>
-        </a>
+        <a href="/accounts/edit/">Edit profile</a>
         <form action="/accounts/logout/" method="post" enctype="multipart/form-data">
           <input class="btn btn-sm btn-secondary" type="submit" name="logout" value="Logout" />
         </form>

@@ -187,7 +187,37 @@ def edit_user_profile(data):
         (fullname, email, filename, username )
     )
 
+def is_following(postid, username):
+    """Check if current username is following owner of postid."""
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        'SELECT owner '
+        'FROM posts '
+        'WHERE postid = ?',
+        (postid, )
+    )
+    post_owner = cur.fetchone()['owner']
+    if post_owner == username:
+        return True
+    cur = connection.execute(
+        'SELECT * '
+        'FROM following '
+        'WHERE username1 = ? AND username2 = ?',
+        (username, post_owner)
+    )
+    return len(cur.fetchall()) == 1
+
 # ===== POSTS =====
+def get_posts(): 
+    """Get posts from table."""
+    connection = insta485.model.get_db()
+    cur = connection.execute(
+        'SELECT * '
+        'FROM posts '
+    )
+    return cur.fetchall() 
+
+
 def get_post_data(postid):
     """Get post data from table."""
     connection = insta485.model.get_db()
@@ -261,7 +291,7 @@ def update_likes(like, username, postid):
     """Update likes for post."""
     if like:
         connection = insta485.model.get_db()
-        cur = connection.execute(
+        connection.execute(
             'INSERT INTO '
             'likes (owner, postid) '
             'VALUES (?, ?)',
@@ -269,13 +299,12 @@ def update_likes(like, username, postid):
         )
     else:
         connection = insta485.model.get_db()
-        cur = connection.execute(
+        connection.execute(
             'SELECT * FROM likes '
             'WHERE owner = ? AND postid = ?',
             (username, postid)
         )
-        print(cur.fetchall())
-        cur = connection.execute(
+        connection.execute(
             'DELETE FROM likes '
             'WHERE owner = ? AND postid = ?',
             (username, postid)
@@ -285,7 +314,7 @@ def update_likes(like, username, postid):
 def delete_post(postid, filename):
     """Delete post rom posts."""
     connection = insta485.model.get_db()
-    cur = connection.execute(
+    connection.execute(
         'DELETE FROM posts '
         'WHERE postid = ?',
         (postid, )
@@ -305,10 +334,10 @@ def get_comment_owner(commentid):
     return cur.fetchone() 
 
 
-def create_comments(username, postid, text):
+def create_comment(username, postid, text):
     """Update comments for post."""
     connection = insta485.model.get_db()
-    cur = connection.execute(
+    connection.execute(
         'INSERT INTO '
         'comments (owner, postid, text) '
         'VALUES (?, ?, ?)',
@@ -319,7 +348,7 @@ def create_comments(username, postid, text):
 def delete_comment(commentid):
     """Delete comment from comments."""
     connection = insta485.model.get_db()
-    cur = connection.execute(
+    connection.execute(
         'DELETE FROM comments '
         'WHERE commentid = ?',
         (commentid, )

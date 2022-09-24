@@ -3,6 +3,7 @@
 <div id="site_body">
   <div id="feed">
     {% for post in posts %}
+    {% if post['is_following'] %}
     <div class="post">
       <div class="post_header">
         <a href="/users/{{ post['owner'] }}/">
@@ -56,6 +57,7 @@
         </form>
       </div>
     </div>
+    {% endif %}
     {% endfor %}
   </div>
 </div>

@@ -22,23 +22,18 @@ def show_index():
     """Display / route."""
     if 'login' not in flask.session:
         return flask.redirect(flask.url_for('show_login'))
-    username = flask.session['login']
+    login_user = flask.session['login']
     context = {
-        'logname': username,
+        'logname': login_user,
         'posts': []
     }
-    # Get all posts
-    connection = insta485.model.get_db()
-    cur = connection.execute(
-        'SELECT postid '
-        'FROM posts '
-    )
-    post_id_list = cur.fetchall()
+    posts = model.get_posts()
     # Get all relevant data for each post
-    for item in post_id_list:
-        postid = item['postid']
+    for post in posts:
+        postid = post['postid']
         post_data = model.get_post_data(postid)
-        post_data['not_liked'] = model.user_like_post(username, postid)
+        post_data['not_liked'] = model.user_like_post(login_user, postid)
+        post_data['is_following'] = model.is_following(postid, login_user)
         context['posts'].append(post_data)
     return flask.render_template('index.html', **context)
 
@@ -48,9 +43,9 @@ def show_user(username):
     """Display /users/<username> route."""
     if 'login' not in flask.session:
         return flask.redirect(flask.url_for('show_login'))
-    username = flask.session['login']
+    login_user = flask.session['login']
     context = {
-        'logname': username,
+        'logname': login_user,
         'username': username,
     }
     user_data = model.get_user_data(username)
@@ -73,16 +68,18 @@ def show_posts(postid):
     """Display /posts/<postid>/ route."""
     if 'login' not in flask.session:
         return flask.redirect(flask.url_for('show_login'))
-    username = flask.session['login']
+    login_user = flask.session['login']
     post = model.get_post_data(postid)
     context = {
-        'logname': username,
+        'logname': login_user,
         'postid': postid
     }
 
     for entry in post:
         context[entry] = post[entry]
-    context['not_liked'] = model.user_like_post(username, postid)
+    post_owner = post['owner']
+    context['is_owner'] = post_owner == login_user 
+    context['not_liked'] = model.user_like_post(login_user, postid)
     return flask.render_template('post.html', **context)
 
 
@@ -91,9 +88,9 @@ def show_followers(username):
     """Display /users/<username>/follower route."""
     if 'login' not in flask.session:
         return flask.redirect(flask.url_for('show_login'))
-    username = flask.session['login']
+    login_user = flask.session['login']
     context = {
-        'logname': username,
+        'logname': login_user,
         'followers': []
     }
 
@@ -117,9 +114,9 @@ def show_following(username):
     """Display /users/<userid>/following route."""
     if 'login' not in flask.session:
         return flask.redirect(flask.url_for('show_login'))
-    username = flask.session['login']
+    login_user = flask.session['login']
     context = {
-        'logname': username,
+        'logname': login_user,
         'following': []
     }
     logname_following_list = model.get_user_following(context['logname'])
@@ -142,9 +139,9 @@ def show_explore():
     """Display /explore/ route."""
     if 'login' not in flask.session:
         return flask.redirect(flask.url_for('show_login'))
-    username = flask.session['login']
+    login_user = flask.session['login']
     context = {
-        'logname': username,
+        'logname': login_user,
         'not_following': []
     }
     not_following_list = model.get_user_not_following(context['logname'])
@@ -194,11 +191,11 @@ def show_edit():
     """Display edit account route."""
     if 'login' not in flask.session:
         return flask.redirect(flask.url_for('show_login'))
-    username = flask.session['login']
+    login_user = flask.session['login']
     context = {
-        'logname': username,
-        'user_filename': model.get_user_photo(username),
-        **model.get_user_data(username),
+        'logname': login_user,
+        'user_filename': model.get_user_photo(login_user),
+        **model.get_user_data(login_user),
     }
     return flask.render_template('edit.html', **context)
 
@@ -295,17 +292,16 @@ def update_likes():
 def update_comments():
     """Display comments route."""
     operation = flask.request.form['operation']
+    redirect = flask.url_for('show_index')
     if 'target' in flask.request.args:
         redirect = flask.request.args['target']
-    else:
-        redirect = flask.url_for('show_index')
     if operation == 'create':
         username = flask.session['login']
         postid = flask.request.form['postid']
         text = flask.request.form['text']
         if text is None or text == "":
             flask.abort(400)
-        model.create_comments(True, username, postid, text)
+        model.create_comment(username, postid, text)
         return flask.redirect(redirect)
     if operation == 'delete':
         username = flask.session['login']
@@ -322,19 +318,18 @@ def update_comments():
 def update_posts():
     """Display posts route."""
     operation = flask.request.form['operation']
+    login_name = flask.session['login']
+    redirect = f'/users/{login_name}/'
     if 'target' in flask.request.args:
         redirect = flask.request.args['target']
-    else:
-        redirect = flask.url_for('show_index')
     if operation == 'create':
         return flask.redirect(redirect)
     if operation == 'delete':
-        username = flask.session['login']
         postid = flask.request.form['postid']
         data = model.get_post_data(postid)
         filename = model.get_post_filename(postid)
         post_owner = data['owner']
-        if username == post_owner:
+        if login_name == post_owner:
             model.delete_post(postid, filename)
         else:
             flask.abort(403)
