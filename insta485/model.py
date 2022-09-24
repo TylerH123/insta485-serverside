@@ -385,6 +385,17 @@ def update_likes(like, username, postid):
         )
 
 
+def create_post(filename, username):
+    """Create a post."""
+    connection = insta485.model.get_db()
+    connection.execute(
+        'INSERT INTO '
+        'posts (filename, owner)'
+        'VALUES (?, ?)',
+        (filename, username)
+    )
+
+
 def delete_post(postid, filename):
     """Delete post rom posts."""
     connection = insta485.model.get_db()

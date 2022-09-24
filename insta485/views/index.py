@@ -312,6 +312,14 @@ def update_posts():
     if 'target' in flask.request.args:
         redirect = flask.request.args['target']
     if operation == 'create':
+        if 'file' not in flask.request.files:
+            flask.abort(400)
+        fileobj = flask.request.files['file']
+        if fileobj.filename != "":
+            filename = model.upload_file(fileobj)
+        else:
+            flask.abort(400)
+        model.create_post(filename, login_name)
         return flask.redirect(redirect)
     if operation == 'delete':
         postid = flask.request.form['postid']
@@ -330,10 +338,9 @@ def update_posts():
 def update_follows():
     """Display follows route."""
     operation = flask.request.form['operation']
+    redirect = flask.url_for('show_index')
     if 'target' in flask.request.args:
         redirect = flask.request.args['target']
-    else:
-        redirect = flask.url_for('show_index')
     logname = flask.session['login']
     if operation == 'follow':
         return follow(redirect, logname)
@@ -368,15 +375,20 @@ def create(redirect):
     fields = ['username', 'fullname', 'email', 'file', 'password']
     for field in fields:
         if field == 'file':
+            if field not in flask.request.files:
+                flask.abort(400)
             fileobj = flask.request.files['file']
             data_field = model.upload_file(fileobj)
-        elif field == 'password':
-            password = flask.request.form['password']
-            data_field = model.hash_password(password)
+            if fileobj.filename == '':
+                return flask.abort(400)
         else:
+            if field not in flask.request.form:
+                flask.abort(400)
             data_field = flask.request.form[field]
             if data_field == '':
                 flask.abort(400)
+            if field == 'password':
+                data_field = model.hash_password(data_field)
         data.append(data_field)
     existing_username = model.get_user_data(data[0])
     if existing_username is not None:
@@ -399,6 +411,8 @@ def edit(redirect):
             else:
                 data_field = ""
         else:
+            if field not in flask.request.form:
+                flask.abort(400)
             data_field = flask.request.form[field]
             if data_field == '':
                 flask.abort(400)
@@ -408,7 +422,7 @@ def edit(redirect):
 
 
 def update(redirect):
-    """Update account."""
+    """Update password."""
     if 'login' not in flask.session:
         flask.abort(403)
     if 'password' not in flask.request.form or \
