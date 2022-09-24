@@ -48,10 +48,9 @@
           <p>{{ comment['text'] }}</p>
         </div>
         {% endfor %}
-        <form class="comment_input" action="<FIXME_COMMENTS_URL_HERE>?target=<FIXME_CURRENT_PAGE_URL_HERE>"
-          method="post" enctype="multipart/form-data">
+        <form class="comment_input" action="/comments/?target=/" method="post" enctype="multipart/form-data">
           <input type="hidden" name="operation" value="create" />
-          <input type="hidden" name="postid" value="<FIXME_POST_ID_HERE>" />
+          <input type="hidden" name="postid" value="{{ post['postid'] }}" />
           <input class="comment_input_text" type="text" name="text" required />
           <input class="btn btn-sm btn-primary" type="submit" name="comment" value="comment" />
         </form>

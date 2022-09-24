@@ -173,6 +173,20 @@ def get_user_not_following(username):
     not_following.remove(username)
     return not_following
 
+def edit_user_profile(data):
+    """Update Fullname, Email, Profile Picture."""
+    username = data[0]
+    fullname = data[1]
+    email = data[2]
+    filename = data[3]
+    connection = insta485.model.get_db()
+    connection.execute(
+        'UPDATE users '
+        'SET fullname = ?, email = ?, filename = ? '
+        'WHERE username = ?',
+        (fullname, email, filename, username )
+    )
+
 
 # ===== POSTS =====
 
@@ -256,3 +270,27 @@ def update_likes(like, username, postid):
             'WHERE owner = ? AND postid = ?',
             (username, postid)
         )
+
+def update_comments(create, username, postid, text):
+    """Update comments for post."""
+    if create:
+        connection = insta485.model.get_db()
+        cur = connection.execute(
+            'INSERT INTO '
+            'comments (owner, postid, text) '
+            'VALUES (?, ?, ?)',
+            (username, postid, text)
+        )
+    # else:
+    #     connection = insta485.model.get_db()
+    #     cur = connection.execute(
+    #         'SELECT * FROM likes '
+    #         'WHERE owner = ? AND postid = ?',
+    #         (username, postid)
+    #     )
+    #     print(cur.fetchall())
+    #     cur = connection.execute(
+    #         'DELETE FROM likes '
+    #         'WHERE owner = ? AND postid = ?',
+    #         (username, postid)
+    #     )

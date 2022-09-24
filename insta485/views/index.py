@@ -258,7 +258,8 @@ def update_accounts():
                 if data_field == '':
                     flask.abort(400)
             data.append(data_field)
-        
+        model.edit_user_profile(data)
+        return flask.redirect(redirect)
 
 
 @insta485.app.route('/likes/', methods=['POST'])
@@ -280,4 +281,20 @@ def update_likes():
         postid = flask.request.form['postid']
         if not model.user_like_post(username, postid):
             model.update_likes(False, username, postid)
+        return flask.redirect(redirect)
+
+
+@insta485.app.route('/comments/', methods=['POST'])
+def update_comments():
+    """Display comments route."""
+    operation = flask.request.form['operation']
+    if 'target' in flask.request.args:
+        redirect = flask.request.args['target']
+    else:
+        redirect = flask.url_for('show_index')
+    if operation == 'create':
+        username = flask.session['login']
+        postid = flask.request.form['postid']
+        text = flask.request.form['text']
+        model.update_comments(True, username, postid, text)
         return flask.redirect(redirect)
