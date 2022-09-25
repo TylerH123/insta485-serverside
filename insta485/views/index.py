@@ -34,7 +34,7 @@ def show_index():
     }
     posts = model.get_posts()
     # Get all relevant data for each post
-    for post in posts:
+    for post in posts[::-1]:
         postid = post['postid']
         post_data = model.get_post_data(postid)
         post_data['not_liked'] = model.user_like_post(login_user, postid)
